@@ -1,26 +1,50 @@
 <script setup lang="ts">
-  import { store } from "@store/store"
-  import type { Notebook } from "@schemas/notebook"
-  import { onMounted, watch } from "vue"
+import { notebookStore } from "@store/notebookStore";
+import type { Notebook } from "@schemas/notebook";
+import { onMounted, watch } from "vue";
 
-  // Define props
-  const props = defineProps<{
-    notebook: Notebook
-  }>()
+import MarkdownCell from "./celltypes/markdown";
+import CodeCell from "./celltypes/code";
+import PyodideProvider from "./pyodide/PyodideProvider.vue";
 
-  // Store the notebook in the store when the component is mounted
-  onMounted(() => {
-    store.loadNotebook(props.notebook)
-  })
+const props = defineProps<{
+  id: string;
+  notebook: Notebook;
+}>();
 
-  // Watch for changes to the notebook prop and update the store
-  watch(() => props.notebook, (newNotebook) => {
-    store.loadNotebook(newNotebook)
-  })
+onMounted(() => {
+  notebookStore.loadNotebook(props.notebook);
+});
+
+watch(
+  () => props.notebook,
+  newNotebook => {
+    notebookStore.loadNotebook(newNotebook);
+  }
+);
 </script>
 
 <template>
-  <div>
-    <p>{{ notebook.cells[0].source }}</p>
-  </div>
+  <PyodideProvider :notebookId="id">
+    <div class="renderer-container">
+      <div v-for="cell in notebook.cells">
+        <MarkdownCell v-if="cell.cell_type === 'markdown'" :source="cell.source" />
+        <CodeCell v-if="cell.cell_type === 'code'" :cell="cell" />
+      </div>
+    </div>
+  </PyodideProvider>
 </template>
+
+<style>
+.renderer-container {
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+@media (width < 600px) {
+  .renderer-container {
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+}
+</style>

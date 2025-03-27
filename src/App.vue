@@ -4,16 +4,14 @@ import type { Notebook } from "@schemas/notebook";
 
 import Renderer from "@renderer/Renderer.vue";
 
-const titleClass = ref("title");
 const notebook = ref<Notebook | null>(null);
+const id = "test"
 
-// Load the notebook file
 onMounted(async () => {
   try {
-    const response = await fetch("/samples/kitchen_sink.ipynb");
+    const response = await fetch("/samples/matplotlib.ipynb");
     const contents = await response.text();
     notebook.value = JSON.parse(contents);
-
     console.log("Notebook loaded:", notebook.value);
   } catch (error) {
     console.error("Error loading notebook:", error);
@@ -22,14 +20,5 @@ onMounted(async () => {
 </script>
 
 <template>
-  <h1 :class="titleClass">Renderer</h1>
-
-  <!-- Pass the notebook to the Renderer component -->
-  <Renderer v-if="notebook" :notebook="notebook" />
+  <Renderer v-if="notebook" :notebook="notebook" :id="id"/>
 </template>
-
-<style>
-.title {
-  color: red;
-}
-</style>
