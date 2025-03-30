@@ -7,8 +7,6 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),
-      '@store': resolve(__dirname, './src/store'),
-      '@schemas': resolve(__dirname, './src/schemas'),
       '@renderer': resolve(__dirname, './src/renderer'),
     }
   }

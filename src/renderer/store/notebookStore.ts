@@ -1,5 +1,5 @@
 import { reactive } from 'vue'
-import type { Notebook } from '@schemas/notebook';
+import type { Notebook } from '@/renderer/schemas/notebook';
 
 export const notebookStore = reactive({
   content: {} as Notebook,

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { notebookStore } from "@store/notebookStore";
-import type { Notebook } from "@schemas/notebook";
+import { notebookStore } from "@/renderer/store/notebookStore";
+import type { Notebook } from "@/renderer/schemas/notebook";
 import { onMounted, watch } from "vue";
 
 import MarkdownCell from "./celltypes/markdown";
@@ -36,6 +36,8 @@ watch(
 </template>
 
 <style>
+@import "@renderer/styles.css";
+
 .renderer-container {
   padding-left: 8px;
   padding-right: 8px;

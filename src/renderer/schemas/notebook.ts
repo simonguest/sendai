@@ -3,13 +3,11 @@
  * These types follow the Jupyter Notebook format specification.
  */
 
-import { ExtendedCellMetadata, ExtendedNotebookMetadata } from "./extendedMetadata";
-
 /**
  * Metadata for an individual cell in the notebook.
  * Following Jupyter spec, cell metadata can contain arbitrary key-value pairs.
  */
-export interface CellMetadata extends ExtendedCellMetadata {
+export interface CellMetadata {
   /** Whether the cell can be edited */
   editable?: boolean;
   /** Slideshow-specific metadata */
@@ -87,7 +85,7 @@ export interface LanguageInfo {
  * Metadata for the entire notebook.
  * Following Jupyter spec, notebook metadata can contain arbitrary key-value pairs.
  */
-export interface NotebookMetadata extends ExtendedNotebookMetadata {
+export interface NotebookMetadata {
   kernelspec?: KernelSpec;
   language_info?: LanguageInfo;
   /** Allow any additional metadata properties */

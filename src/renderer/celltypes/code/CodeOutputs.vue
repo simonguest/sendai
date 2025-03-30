@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Output } from "@schemas/notebook.ts";
+import type { Output } from "@/renderer/schemas/notebook";
 defineProps<{
   outputs: Output[] | undefined;
 }>();
