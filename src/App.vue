@@ -20,5 +20,5 @@ onMounted(async () => {
 </script>
 
 <template>
-  <Renderer v-if="notebook" :notebook="notebook" :id="id"/>
+  <Renderer v-if="notebook" :initial-notebook="notebook" :id="id"/>
 </template>

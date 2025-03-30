@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { notebookStore } from "@/renderer/store/notebookStore";
-import type { Notebook } from "@/renderer/schemas/notebook";
+import { notebookStore } from "@renderer/store/notebookStore";
+import type { Notebook } from "@renderer/schemas/notebook";
 import { onMounted, watch } from "vue";
 
 import MarkdownCell from "./celltypes/markdown";
@@ -9,15 +9,15 @@ import PyodideProvider from "./pyodide/PyodideProvider.vue";
 
 const props = defineProps<{
   id: string;
-  notebook: Notebook;
+  initialNotebook: Notebook;
 }>();
 
 onMounted(() => {
-  notebookStore.loadNotebook(props.notebook);
+  notebookStore.loadNotebook(props.initialNotebook);
 });
 
 watch(
-  () => props.notebook,
+  () => props.initialNotebook,
   newNotebook => {
     notebookStore.loadNotebook(newNotebook);
   }
@@ -27,9 +27,9 @@ watch(
 <template>
   <PyodideProvider :notebookId="id">
     <div class="renderer-container">
-      <div v-for="cell in notebook.cells">
+      <div v-for="cell in notebookStore.content.cells">
         <MarkdownCell v-if="cell.cell_type === 'markdown'" :source="cell.source" />
-        <CodeCell v-if="cell.cell_type === 'code'" :cell="cell" />
+        <CodeCell v-if="cell.cell_type === 'code'" :cell="cell"/>
       </div>
     </div>
   </PyodideProvider>

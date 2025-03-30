@@ -16,7 +16,7 @@ defineProps<{
     </div>
     <div class="code-editor-column">
       <div class="code-editor-container">
-        <CodeEditor :source="cell.source" />
+        <CodeEditor :source="cell.source" :id="cell.id"/>
       </div>
       <div class="code-outputs-container">
         <CodeOutputs :outputs="cell.outputs" />
@@ -28,11 +28,10 @@ defineProps<{
 <style>
 .code-container {
   display: flex;
-  height: 300px;
 }
 
 .code-control-column {
-  width: 100px;
+  width: 50px;
 }
 
 .code-editor-column {
