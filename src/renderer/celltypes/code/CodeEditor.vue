@@ -4,6 +4,8 @@ import { EditorState } from "@codemirror/state";
 import { EditorView, basicSetup } from "codemirror";
 import { python } from "@codemirror/lang-python";
 
+import { defaultTheme } from "./CodeEditorThemes";
+
 const props = defineProps<{
   source: string[] | undefined;
   id: string;
@@ -12,7 +14,7 @@ const props = defineProps<{
 onMounted(() => {
   const startState = EditorState.create({
     doc: props.source?.join(""),
-    extensions: [basicSetup, python()],
+    extensions: [basicSetup, python(), defaultTheme, EditorView.lineWrapping],
   });
   const view = new EditorView({
     state: startState,
@@ -22,13 +24,14 @@ onMounted(() => {
 </script>
 
 <template>
-  <div id="code-editor-container">
+  <div id="code-editor-container2">
     <div :id="`code-editor-${props.id}`" />
   </div>
 </template>
 
 <style>
-.code-editor-container {
-  width: 300px;
+.CodeMirror {
+  font-family: Arial, monospace;
+  font-size: 16px;
 }
 </style>

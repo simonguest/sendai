@@ -12,11 +12,15 @@ const toMarkdown = (source: string[] | undefined) => {
 </script>
 
 <template>
-  <div v-html="toMarkdown(source)" class="markdown-cell"></div>
+  <div class="markdown-cell">
+    <div v-html="toMarkdown(source)"></div>
+  </div>
 </template>
 
 <style>
 .markdown-cell {
   padding-bottom: 10px;
+  max-width: 800px;
+  margin: 0 auto;
 }
 </style>

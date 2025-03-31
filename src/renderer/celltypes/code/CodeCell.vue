@@ -10,28 +10,26 @@ defineProps<{
 </script>
 
 <template>
-  <div class="code-container">
+  <div class="code-cell">
     <div class="code-control-column">
       <CodeControls />
     </div>
     <div class="code-editor-column">
-      <div class="code-editor-container">
-        <CodeEditor :source="cell.source" :id="cell.id"/>
-      </div>
-      <div class="code-outputs-container">
-        <CodeOutputs :outputs="cell.outputs" />
-      </div>
+      <CodeEditor :source="cell.source" :id="cell.id" />
+      <CodeOutputs :outputs="cell.outputs" />
     </div>
   </div>
 </template>
 
 <style>
-.code-container {
+.code-cell {
   display: flex;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 .code-control-column {
-  width: 50px;
+  width: 30px;
 }
 
 .code-editor-column {
@@ -40,22 +38,18 @@ defineProps<{
   flex-direction: column;
 }
 
-.code-editor-container,
-.code-outputs-container {
-  flex: 1;
-}
-
 @media (width < 600px) {
-  .code-container {
+  .code-cell {
     flex-direction: column;
     height: auto;
   }
-  
+
   .code-control-column {
-    width: 100%; 
+    width: 100%;
     height: auto;
+    padding-bottom: 5px;
   }
-  
+
   .code-editor-column {
     width: 100%;
   }
