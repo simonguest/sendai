@@ -9,10 +9,10 @@ const id = "test"
 
 onMounted(async () => {
   try {
-    const response = await fetch("/samples/kitchen_sink.ipynb");
+    const response = await fetch("/samples/hello_world.ipynb");
     const contents = await response.text();
     notebook.value = JSON.parse(contents);
-    console.log("Notebook loaded:", notebook.value);
+    console.log("Notebook loaded");
   } catch (error) {
     console.error("Error loading notebook:", error);
   }
