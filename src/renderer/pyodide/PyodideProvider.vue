@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted } from "vue";
+import { onMounted, onUnmounted, watch } from "vue";
 
+import { notebookStore } from "@renderer/store/notebookStore";
 import { pyodideStore, WorkerStatus } from "@renderer/store/pyodideStore";
 
 const props = defineProps<{ notebookId: string }>();
@@ -38,6 +39,23 @@ onUnmounted(async () => {
   console.log("PyodideProvider: Terminating worker.");
   worker.terminate();
 });
+
+watch(
+  () => pyodideStore.executionStatus,
+  newExecutionStatus => {
+    console.log("Execution status has changed");
+    console.log(newExecutionStatus);
+    if (newExecutionStatus === "queued" && pyodideStore.runningCellId != null) {
+      // Grab the source from the notebook
+      const code = notebookStore.getCellSource(pyodideStore.runningCellId);
+      worker.postMessage({
+        type: "run",
+        cellId: pyodideStore.runningCellId,
+        code: code?.join(""),
+      });
+    }
+  }
+);
 </script>
 
 <template>

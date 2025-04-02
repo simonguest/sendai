@@ -1,11 +1,21 @@
 <script setup lang="ts">
 import { pyodideStore, WorkerStatus } from "@/renderer/store/pyodideStore";
+import { defineProps } from "vue";
+
+const props = defineProps<{
+  id: string;
+}>();
+
+const runCode = () => {
+  pyodideStore.executeCell(props.id);
+}
 </script>
 
 <template>
-  <button 
-    class="play-button" 
-    :class="{ 'play-button-ready': pyodideStore.workerStatus === 'ready' }" 
+  <button
+    class="play-button"
+    @click="runCode"
+    :class="{ 'play-button-ready': pyodideStore.workerStatus === 'ready' }"
     :disabled="pyodideStore.workerStatus !== 'ready'"
     aria-label="Run code"
   ></button>

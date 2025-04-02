@@ -28,3 +28,7 @@ class StdCapture:
 
 # Create a capture object
 std_capture = StdCapture()
+
+# Define function to run a cell
+def run_cell(code, cell_id):
+  return ipython.run_cell(code, cell_id=cell_id)

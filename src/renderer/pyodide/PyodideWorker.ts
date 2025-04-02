@@ -23,13 +23,11 @@ async function initialize() {
 
   // Load IPython
   console.log("PyodideWorker: Loading IPython package");
-  await pyodide.loadPackage("ipython")
+  await pyodide.loadPackage("ipython");
   console.log("PyodideWorker: Initializing IPython shell");
   const response = await fetch(new URL("./init_ipython.py", import.meta.url));
   const code = await response.text();
   await pyodide.runPythonAsync(code);
-
-
 }
 
 self.onmessage = async event => {
@@ -47,6 +45,23 @@ self.onmessage = async event => {
       } catch (error) {
         console.error("PyodideWorker: Failed to initialize Pyodide:", error);
         self.postMessage({ type: "fatal", error: String(error) });
+      }
+      break;
+    case "run":
+      const code = data.code;
+      const cellId = data.cellId;
+      console.log(data);
+      try {
+        if (pyodide) {
+          await pyodide.runPythonAsync("std_capture.start()");
+          await pyodide.runPythonAsync(`run_cell('${code}', cell_id='${cellId}')`);
+          const output = await pyodide.runPythonAsync("std_capture.get_output()");
+          console.log(output[0]);
+          console.log(output[1]);
+        }
+      } catch (error) {
+        console.error("PyodideWorker: " + error);
+        self.postMessage({ type: "error", error: String(error) });
       }
       break;
   }

@@ -12,7 +12,7 @@ defineProps<{
 <template>
   <div class="code-cell">
     <div class="code-control-column">
-      <CodeControls />
+      <CodeControls :id="cell.id"/>
     </div>
     <div class="code-editor-column">
       <CodeEditor :source="cell.source" :id="cell.id" />
