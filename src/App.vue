@@ -9,7 +9,7 @@ const id = "test"
 
 onMounted(async () => {
   try {
-    const response = await fetch("/samples/chess.ipynb");
+    const response = await fetch("/samples/kitchen_sink.ipynb");
     const contents = await response.text();
     notebook.value = JSON.parse(contents);
     console.log("Notebook loaded");

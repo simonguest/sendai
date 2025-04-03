@@ -8,9 +8,20 @@ export const notebookStore = reactive({
     if (!this.content.cells) {
       return null;
     }
-    
     const cell = this.content.cells.find(cell => cell.id === cellId);
     return cell ? cell.source : null;
+  },
+  setCellSource(cellId: string, source: string[]) {
+    if (!this.content.cells) {
+      return;
+    }
+    
+    const cell = this.content.cells.find(cell => cell.id === cellId);
+    if (cell) {
+      // Add \n chars to the end of each source line
+      source = source.map(line => line + "\n");
+      cell.source = source
+    }
   },
   loadNotebook(notebook: Notebook) {
     // check for the existance of valid cell ids - if no valid one, assign a UUID

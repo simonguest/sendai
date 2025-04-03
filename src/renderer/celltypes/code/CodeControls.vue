@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { pyodideStore, WorkerStatus } from "@/renderer/store/pyodideStore";
+import { pyodideStore } from "@/renderer/store/pyodideStore";
 import { defineProps } from "vue";
 
 const props = defineProps<{

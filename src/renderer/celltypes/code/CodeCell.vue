@@ -2,7 +2,7 @@
 import CodeControls from "./CodeControls.vue";
 import CodeEditor from "./CodeEditor.vue";
 import CodeOutputs from "./CodeOutputs.vue";
-import type { Cell, Output } from "@/renderer/schemas/notebook";
+import type { Cell } from "@/renderer/schemas/notebook";
 
 defineProps<{
   cell: Cell;

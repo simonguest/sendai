@@ -69,18 +69,13 @@ self.onmessage = async event => {
           await pyodide.loadPackagesFromImports(code);
           // Load any additional required packages beyond the standard ones that ship with pyodide
           await pyodide.loadPackage(additionalPackagesFromCode(code));
-          
+
           // Run the code in an ipython cell
-          const codeToBeRun = `
-result = ipython.run_cell("""
-${code}
-""", cell_id='${cellId}')
-`;
-          console.log(codeToBeRun);
-          await pyodide.runPythonAsync(codeToBeRun);
+          const codeCell = `result = ipython.run_cell("""${code}""", cell_id='${cellId}')`;
+          await pyodide.runPythonAsync(codeCell);
 
           // Run the result through repr to get the printable representation
-          const result = await pyodide.runPythonAsync(`repr(result.result)`);
+          const result = await pyodide.runPythonAsync(`repr(ipython.display_formatter.format(result.result))`);
           console.log(result);
         }
       } catch (error) {
