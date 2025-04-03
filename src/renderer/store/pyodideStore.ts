@@ -21,5 +21,9 @@ export const pyodideStore = reactive({
       this.runningCellId = cellId;
       this.executionStatus = "queued";
     }
+  },
+  executionCompleted() {
+    this.runningCellId = null;
+    this.executionStatus = "idle";
   }
 })

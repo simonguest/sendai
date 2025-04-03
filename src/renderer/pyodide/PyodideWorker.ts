@@ -1,6 +1,7 @@
 /// <reference lib="webworker" />
 
 import { loadPyodideModule } from "./loadPyodide";
+import { additionalPackagesFromCode } from "./additionalPackagesFromCode";
 
 let pyodide: any;
 let interruptBuffer: Int32Array | null = null;
@@ -24,6 +25,18 @@ async function initialize() {
   // Load IPython
   console.log("PyodideWorker: Loading IPython package");
   await pyodide.loadPackage("ipython");
+
+  console.log("PyodideWorker: Creating override for stdout");
+  pyodide.globals.set("_override_stdout", {
+    write: (text: string) => {
+      self.postMessage({ type: "stdout", text });
+      return text.length;
+    },
+    flush: () => {
+      /* no-op */
+    },
+  });
+
   console.log("PyodideWorker: Initializing IPython shell");
   const response = await fetch(new URL("./init_ipython.py", import.meta.url));
   const code = await response.text();
@@ -50,19 +63,31 @@ self.onmessage = async event => {
     case "run":
       const code = data.code;
       const cellId = data.cellId;
-      console.log(data);
       try {
         if (pyodide) {
-          await pyodide.runPythonAsync("std_capture.start()");
-          await pyodide.runPythonAsync(`run_cell('${code}', cell_id='${cellId}')`);
-          const output = await pyodide.runPythonAsync("std_capture.get_output()");
-          console.log(output[0]);
-          console.log(output[1]);
+          // Load required packages
+          await pyodide.loadPackagesFromImports(code);
+          // Load any additional required packages beyond the standard ones that ship with pyodide
+          await pyodide.loadPackage(additionalPackagesFromCode(code));
+          
+          // Run the code in an ipython cell
+          const codeToBeRun = `
+result = ipython.run_cell("""
+${code}
+""", cell_id='${cellId}')
+`;
+          console.log(codeToBeRun);
+          await pyodide.runPythonAsync(codeToBeRun);
+
+          // Run the result through repr to get the printable representation
+          const result = await pyodide.runPythonAsync(`repr(result.result)`);
+          console.log(result);
         }
       } catch (error) {
-        console.error("PyodideWorker: " + error);
+        console.error(error);
         self.postMessage({ type: "error", error: String(error) });
       }
+      self.postMessage({ type: "result", result: "" });
       break;
   }
 };

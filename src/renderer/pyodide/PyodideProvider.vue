@@ -17,7 +17,7 @@ onMounted(async () => {
   });
 
   worker.onmessage = async (event: MessageEvent<any>) => {
-    const { type, interruptBuffer } = event.data;
+    const { type, text, interruptBuffer } = event.data;
 
     switch (type) {
       case "initialized":
@@ -30,6 +30,14 @@ onMounted(async () => {
         //   dispatch(interruptSupported());
         // }
         // dispatch(setWorkerStatus("ready"));
+        break;
+      case "result":
+        console.log("PyodideProvider: Code Executed");
+        pyodideStore.setWorkerStatus("ready");
+        pyodideStore.executionCompleted();
+        break;
+      case "stdout":
+        console.log(text);
         break;
     }
   };
