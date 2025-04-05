@@ -10,17 +10,26 @@ const props = defineProps<{
 const runCode = () => {
   notebookStore.clearOutputs(props.id);
   pyodideStore.executeCell(props.id);
-}
+};
+
+const interruptCode = () => {
+  pyodideStore.interruptExecution();
+  console.log("Interrupt Requested");
+};
 </script>
 
 <template>
   <button
     class="play-button"
     @click="runCode"
-    :class="{ 'play-button-ready': pyodideStore.workerStatus === 'ready' }"
+    :class="{
+      'play-button-ready':
+        pyodideStore.workerStatus === 'ready' && pyodideStore.executionStatus === 'idle',
+    }"
     :disabled="pyodideStore.workerStatus !== 'ready'"
     aria-label="Run code"
   ></button>
+  <button class="stop-button" @click="interruptCode">S</button>
 </template>
 
 <style>

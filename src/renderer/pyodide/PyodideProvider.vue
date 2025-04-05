@@ -23,13 +23,10 @@ onMounted(async () => {
       case "initialized":
         console.log("PyodideProvider: Pyodide is initialized");
         pyodideStore.setWorkerStatus("ready");
-        // if (interruptBuffer) {
-        //   interruptBufferRef.current = new Int32Array(interruptBuffer);
-        //   console.log("Interrupt buffer is supported");
-        //   // Interrupt is supported on this machine/configuration
-        //   dispatch(interruptSupported());
-        // }
-        // dispatch(setWorkerStatus("ready"));
+        if (interruptBuffer) {
+          pyodideStore.setInterruptBuffer(new Int32Array(interruptBuffer));
+          console.log("PyodideProvider: Set Interrupt Buffer")
+        }
         break;
       case "result":
         console.log("PyodideProvider: Code Executed");

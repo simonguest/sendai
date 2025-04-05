@@ -15,6 +15,7 @@ async function initialize() {
   if (hasSharedArrayBuffer) {
     const buffer = new SharedArrayBuffer(4);
     interruptBuffer = new Int32Array(buffer);
+    pyodide.setInterruptBuffer(interruptBuffer);
     console.log("PyodideWorker: Interrupt buffer created");
   } else {
     console.warn(
