@@ -37,7 +37,9 @@ onMounted(async () => {
         pyodideStore.executionCompleted();
         break;
       case "stdout":
-        console.log(text);
+        if (pyodideStore.runningCellId) {
+          notebookStore.addStdOut(pyodideStore.runningCellId, text);
+        }
         break;
     }
   };

@@ -39,7 +39,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div id="code-editor-container2">
+  <div id="code-editor-container">
     <div :id="`code-editor-${props.id}`" />
   </div>
 </template>

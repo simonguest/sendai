@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { pyodideStore } from "@/renderer/store/pyodideStore";
+import { notebookStore } from "@/renderer/store/notebookStore";
 import { defineProps } from "vue";
 
 const props = defineProps<{
@@ -7,6 +8,7 @@ const props = defineProps<{
 }>();
 
 const runCode = () => {
+  notebookStore.clearOutputs(props.id);
   pyodideStore.executeCell(props.id);
 }
 </script>
