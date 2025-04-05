@@ -27,10 +27,24 @@ async function initialize() {
   console.log("PyodideWorker: Loading IPython package");
   await pyodide.loadPackage("ipython");
 
+  // Override stdout
   console.log("PyodideWorker: Creating override for stdout");
   pyodide.globals.set("_override_stdout", {
     write: (text: string) => {
       self.postMessage({ type: "stdout", text });
+      return text.length;
+    },
+    flush: () => {
+      /* no-op */
+    },
+  });
+
+  // Override stderr
+  console.log("PyodideWorker: Creating override for stderr");
+  pyodide.globals.set("_exception", {
+    write: (text: string) => {
+      console.log(text);
+      //self.postMessage({ type: "error", text });
       return text.length;
     },
     flush: () => {
@@ -67,23 +81,26 @@ self.onmessage = async event => {
       try {
         if (pyodide) {
           // Load required packages
+          console.log("PyodideProvider: Loading packages from imports");
           await pyodide.loadPackagesFromImports(code);
           // Load any additional required packages beyond the standard ones that ship with pyodide
+          console.log("PyodideProvider: Loading additional packages from code");
           await pyodide.loadPackage(additionalPackagesFromCode(code));
+          // Implement any overrides for the currently loaded packages
+          console.log("PyodideProvider: Implementing overrides");
+          await pyodide.runPythonAsync('implement_overrides()');
 
           // Run the code in an ipython cell
-          const codeCell = `result = ipython.run_cell("""${code}""", cell_id='${cellId}')`;
-          await pyodide.runPythonAsync(codeCell);
-
-          // Run the result through repr to get the printable representation
-          const result = await pyodide.runPythonAsync(`repr(ipython.display_formatter.format(result.result))`);
-          console.log(result);
+          console.log("PyodideProvider: Running cell");
+          const codeCell = `run_cell("""${code}""", cell_id='${cellId}')`;
+          const result = await pyodide.runPythonAsync(codeCell);
+          console.log("PyodideProvider: Returning result");
+          self.postMessage({ type: "result", result });
         }
       } catch (error) {
         console.error(error);
         self.postMessage({ type: "error", error: String(error) });
       }
-      self.postMessage({ type: "result", result: "" });
       break;
   }
 };

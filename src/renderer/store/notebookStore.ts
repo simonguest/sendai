@@ -56,6 +56,19 @@ export const notebookStore = reactive({
       }
     }
   },
+  setExecutionResult(cellId: string, result: any){
+    if (!this.content.cells) {
+      return;
+    }
+    const cell = this.content.cells.find(cell => cell.id === cellId);
+    if (cell) {
+      if (!cell.outputs) cell.outputs = [];
+      cell.outputs.push({
+        output_type: "execute_result",
+        data: result
+      });
+    }
+  },
   loadNotebook(notebook: Notebook) {
     // check for the existance of valid cell ids - if no valid one, assign a UUID
     if (notebook.cells) {

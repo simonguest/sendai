@@ -17,7 +17,7 @@ onMounted(async () => {
   });
 
   worker.onmessage = async (event: MessageEvent<any>) => {
-    const { type, text, interruptBuffer } = event.data;
+    const { type, text, result, interruptBuffer } = event.data;
 
     switch (type) {
       case "initialized":
@@ -25,11 +25,15 @@ onMounted(async () => {
         pyodideStore.setWorkerStatus("ready");
         if (interruptBuffer) {
           pyodideStore.setInterruptBuffer(new Int32Array(interruptBuffer));
-          console.log("PyodideProvider: Set Interrupt Buffer")
+          console.log("PyodideProvider: Set Interrupt Buffer");
         }
         break;
       case "result":
-        console.log("PyodideProvider: Code Executed");
+        if (pyodideStore.runningCellId) {
+          if (result) { // result will be null if the code didn't return any result
+            notebookStore.setExecutionResult(pyodideStore.runningCellId, result);
+          }
+        }
         pyodideStore.setWorkerStatus("ready");
         pyodideStore.executionCompleted();
         break;
@@ -50,8 +54,6 @@ onUnmounted(async () => {
 watch(
   () => pyodideStore.executionStatus,
   newExecutionStatus => {
-    console.log("Execution status has changed");
-    console.log(newExecutionStatus);
     if (newExecutionStatus === "queued" && pyodideStore.runningCellId != null) {
       // Grab the source from the notebook
       const code = notebookStore.getCellSource(pyodideStore.runningCellId);

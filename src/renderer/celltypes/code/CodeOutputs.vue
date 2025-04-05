@@ -17,10 +17,11 @@ const formatOutput = () => {
 
   return { console };
 };
+
 </script>
 
 <template>
-  <textarea class="output-console">{{ formatOutput().console }}</textarea>
+  <textarea class="output-console">{{ props.outputs }}</textarea>
 </template>
 
 <style>
