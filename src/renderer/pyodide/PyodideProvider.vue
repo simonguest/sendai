@@ -17,7 +17,7 @@ onMounted(async () => {
   });
 
   worker.onmessage = async (event: MessageEvent<any>) => {
-    const { type, text, result, interruptBuffer } = event.data;
+    const { type, text, result, error, interruptBuffer } = event.data;
 
     switch (type) {
       case "initialized":
@@ -34,7 +34,6 @@ onMounted(async () => {
             notebookStore.setExecutionResult(pyodideStore.runningCellId, result);
           }
         }
-        pyodideStore.setWorkerStatus("ready");
         pyodideStore.executionCompleted();
         break;
       case "stdout":
@@ -42,12 +41,18 @@ onMounted(async () => {
           notebookStore.addStdOut(pyodideStore.runningCellId, text);
         }
         break;
+      case "error":
+        if (pyodideStore.runningCellId) {
+          notebookStore.setError(pyodideStore.runningCellId, error);
+        }
+        pyodideStore.executionCompleted();
     }
   };
 });
 
 onUnmounted(async () => {
   console.log("PyodideProvider: Terminating worker.");
+  pyodideStore.setWorkerStatus("terminating");
   worker.terminate();
 });
 

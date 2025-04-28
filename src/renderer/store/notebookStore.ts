@@ -69,6 +69,20 @@ export const notebookStore = reactive({
       });
     }
   },
+  setError(cellId: string, traceback: string | string[]){
+    if (!this.content.cells) {
+      return;
+    }
+    const cell = this.content.cells.find(cell => cell.id === cellId);
+    if (cell) {
+      if (!cell.outputs) cell.outputs = [];
+      const tracebackArray = Array.isArray(traceback) ? traceback : traceback.split("\n");
+      cell.outputs.push({
+        output_type: "error",
+        traceback: tracebackArray
+      });
+    }
+  },
   loadNotebook(notebook: Notebook) {
     // check for the existance of valid cell ids - if no valid one, assign a UUID
     if (notebook.cells) {

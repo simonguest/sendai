@@ -26,8 +26,9 @@ export const pyodideStore = reactive({
     if (this.interruptBuffer) {
       this.interruptBuffer[0] = 2;
     }
+    this.executionStatus = "idle";
   },
-  setWorkerStatus(status: WorkerStatus) {
+setWorkerStatus(status: WorkerStatus) {
     this.workerStatus = status;
   },
   executeCell(cellId: string) {

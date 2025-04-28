@@ -23,10 +23,6 @@ async function initialize() {
     );
   }
 
-  // Load IPython
-  console.log("PyodideWorker: Loading IPython package");
-  await pyodide.loadPackage("ipython");
-
   // Override stdout
   console.log("PyodideWorker: Creating override for stdout");
   pyodide.globals.set("_override_stdout", {
@@ -52,8 +48,8 @@ async function initialize() {
     },
   });
 
-  console.log("PyodideWorker: Initializing IPython shell");
-  const response = await fetch(new URL("./init_ipython.py", import.meta.url));
+  console.log("PyodideWorker: Initializing Python environment");
+  const response = await fetch(new URL("./python_init.py", import.meta.url));
   const code = await response.text();
   await pyodide.runPythonAsync(code);
 }
@@ -80,20 +76,16 @@ self.onmessage = async event => {
       const cellId = data.cellId;
       try {
         if (pyodide) {
-          // Load required packages
           console.log("PyodideProvider: Loading packages from imports");
           await pyodide.loadPackagesFromImports(code);
-          // Load any additional required packages beyond the standard ones that ship with pyodide
           console.log("PyodideProvider: Loading additional packages from code");
           await pyodide.loadPackage(additionalPackagesFromCode(code));
-          // Implement any overrides for the currently loaded packages
           console.log("PyodideProvider: Implementing overrides");
           await pyodide.runPythonAsync('implement_overrides()');
 
-          // Run the code in an ipython cell
-          console.log("PyodideProvider: Running cell");
-          const codeCell = `run_cell("""${code}""", cell_id='${cellId}')`;
-          const result = await pyodide.runPythonAsync(codeCell);
+          // Run the cell code
+          console.log(`PyodideProvider: Running cell ${cellId}`);
+          const result = await pyodide.runPythonAsync(code);
           console.log("PyodideProvider: Returning result");
           self.postMessage({ type: "result", result });
         }
