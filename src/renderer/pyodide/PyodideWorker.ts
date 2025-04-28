@@ -99,6 +99,9 @@ self.onmessage = async event => {
               if ("_repr_html_" in result){
                 self.postMessage({ type: "execute_result", result: { "text/html": result._repr_html_() }});
               }
+              if ("_repr_png_" in result){
+                self.postMessage({ type: "execute_result", result: { "image/png": result._repr_png_() }});
+              }
               // Add the default result representation
               self.postMessage({ type: "execute_result", result: { "text/plain": result.__repr__() }});
             } else {
