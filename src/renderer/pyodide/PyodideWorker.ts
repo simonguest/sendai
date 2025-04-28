@@ -2,6 +2,7 @@
 
 import { loadPyodideModule } from "./loadPyodide";
 import { additionalPackagesFromCode } from "./additionalPackagesFromCode";
+import { overrides, implementOverride } from "./overrides/implementOverride";
 
 let pyodide: any;
 let interruptBuffer: Int32Array | null = null;
@@ -35,16 +36,11 @@ async function initialize() {
     },
   });
 
-  // Override stderr
-  console.log("PyodideWorker: Creating override for stderr");
-  pyodide.globals.set("_exception", {
-    write: (text: string) => {
-      console.log(text);
-      //self.postMessage({ type: "error", text });
-      return text.length;
-    },
-    flush: () => {
-      /* no-op */
+  // Override base64 image updates
+  console.log("PyodideWorker: Creating override for js functions");
+  pyodide.globals.set("js", {
+    imageBase64: (image_base64: string) => {
+      self.postMessage({ type: "execute_result", result: { "image/png": [image_base64] } });
     },
   });
 
@@ -77,17 +73,26 @@ self.onmessage = async event => {
       try {
         if (pyodide) {
           console.log("PyodideProvider: Loading packages from imports");
-          await pyodide.loadPackagesFromImports(code);
+          const basePackages = await pyodide.loadPackagesFromImports(code)
           console.log("PyodideProvider: Loading additional packages from code");
-          await pyodide.loadPackage(additionalPackagesFromCode(code));
-          console.log("PyodideProvider: Implementing overrides");
-          await pyodide.runPythonAsync('implement_overrides()');
+          const additionalPackages = await pyodide.loadPackage(additionalPackagesFromCode(code));
+          
+          console.log("PyodideProvider: Searching for overrides");
+          for(const loadedPackage of [...basePackages, ...additionalPackages]){
+            if (overrides.indexOf(loadedPackage.name) !== -1){
+              console.log(`PyodideProvider: Implementing override for ${loadedPackage.name}`);
+              await implementOverride(pyodide, loadedPackage.name)
+            }
+          }
 
           // Run the cell code
           console.log(`PyodideProvider: Running cell ${cellId}`);
           const result = await pyodide.runPythonAsync(code);
           console.log("PyodideProvider: Returning result");
-          self.postMessage({ type: "result", result });
+          if (result) {
+            self.postMessage({ type: "execute_result", result: { "text/plain": [result] } });
+          }
+          self.postMessage({ type: "execute_completed" });
         }
       } catch (error) {
         console.error(error);

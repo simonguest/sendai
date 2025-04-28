@@ -28,18 +28,21 @@ onMounted(async () => {
           console.log("PyodideProvider: Set Interrupt Buffer");
         }
         break;
-      case "result":
-        if (pyodideStore.runningCellId) {
-          if (result) { // result will be null if the code didn't return any result
-            notebookStore.setExecutionResult(pyodideStore.runningCellId, result);
-          }
-        }
-        pyodideStore.executionCompleted();
-        break;
       case "stdout":
         if (pyodideStore.runningCellId) {
           notebookStore.addStdOut(pyodideStore.runningCellId, text);
         }
+        break;
+      case "execute_result":
+        if (pyodideStore.runningCellId) {
+          if (result) {
+            // result will be null if the code didn't return any result
+            notebookStore.setExecutionResult(pyodideStore.runningCellId, result);
+          }
+        }
+        break;
+      case "execute_completed":
+        pyodideStore.executionCompleted();
         break;
       case "error":
         if (pyodideStore.runningCellId) {
