@@ -14,3 +14,6 @@ node_modules
 
 # Scratch Python files
 scratch*.py
+
+# Mac finder
+.DS_Store

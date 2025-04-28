@@ -4,19 +4,18 @@ import type { Notebook, Output } from "@/renderer/schemas/notebook";
 
 export const notebookStore = reactive({
   content: {} as Notebook,
-  getCellSource(cellId: string) {
+  findCell(cellId: string){
     if (!this.content.cells) {
       return null;
     }
-    const cell = this.content.cells.find(cell => cell.id === cellId);
+    return this.content.cells.find(cell => cell.id === cellId);
+  },
+  getCellSource(cellId: string) {
+    const cell = this.findCell(cellId);
     return cell ? cell.source : null;
   },
   setCellSource(cellId: string, source: string[]) {
-    if (!this.content.cells) {
-      return;
-    }
-    
-    const cell = this.content.cells.find(cell => cell.id === cellId);
+    const cell = this.findCell(cellId);
     if (cell) {
       // Add \n chars to the end of each source line
       source = source.map(line => line + "\n");
@@ -24,19 +23,13 @@ export const notebookStore = reactive({
     }
   },
   clearOutputs(cellId: string){
-    if (!this.content.cells) {
-      return;
-    }
-    const cell = this.content.cells.find(cell => cell.id === cellId);
+    const cell = this.findCell(cellId);
     if (cell) {
       cell.outputs = [];
     }
   },
   addStdOut(cellId: string, stdout: string){
-    if (!this.content.cells) {
-      return;
-    }
-    const cell = this.content.cells.find(cell => cell.id === cellId);
+    const cell = this.findCell(cellId);
     if (cell) {
       if (!cell.outputs) cell.outputs = [];
       const index = cell.outputs.findIndex(
@@ -57,23 +50,33 @@ export const notebookStore = reactive({
     }
   },
   setExecutionResult(cellId: string, result: any){
-    if (!this.content.cells) {
-      return;
-    }
-    const cell = this.content.cells.find(cell => cell.id === cellId);
+    const cell = this.findCell(cellId);
     if (cell) {
       if (!cell.outputs) cell.outputs = [];
-      cell.outputs.push({
-        output_type: "execute_result",
-        data: result
-      });
+      
+      // Find if there's already an execute_result output
+      const executeResultIndex = cell.outputs.findIndex(
+        (output: Output) => output.output_type === "execute_result"
+      );
+      
+      if (executeResultIndex !== -1) {
+        // If execute_result already exists, merge the data objects
+        const existingData = cell.outputs[executeResultIndex].data || {};
+        cell.outputs[executeResultIndex].data = {
+          ...existingData,
+          ...result
+        };
+      } else {
+        // If no execute_result exists, create a new one
+        cell.outputs.push({
+          output_type: "execute_result",
+          data: result
+        });
+      }
     }
   },
   setError(cellId: string, traceback: string | string[]){
-    if (!this.content.cells) {
-      return;
-    }
-    const cell = this.content.cells.find(cell => cell.id === cellId);
+    const cell = this.findCell(cellId);
     if (cell) {
       if (!cell.outputs) cell.outputs = [];
       const tracebackArray = Array.isArray(traceback) ? traceback : traceback.split("\n");

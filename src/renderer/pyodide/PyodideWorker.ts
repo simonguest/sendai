@@ -87,10 +87,24 @@ self.onmessage = async event => {
 
           // Run the cell code
           console.log(`PyodideProvider: Running cell ${cellId}`);
-          const result = await pyodide.runPythonAsync(code);
+          const result = await pyodide.runPythonAsync(`${code}`);
           console.log("PyodideProvider: Returning result");
           if (result) {
-            self.postMessage({ type: "execute_result", result: { "text/plain": [result] } });
+            console.log(result.type);
+            if (typeof result == "object") {
+              // Add result representations, if they exist
+              if ("_repr_svg_" in result){
+                self.postMessage({ type: "execute_result", result: { "image/svg+xml": result._repr_svg_() }});
+              }
+              if ("_repr_html_" in result){
+                self.postMessage({ type: "execute_result", result: { "text/html": result._repr_html_() }});
+              }
+              // Add the default result representation
+              self.postMessage({ type: "execute_result", result: { "text/plain": result.__repr__() }});
+            } else {
+              // The result is not an object. Just pass the result back as a string.
+              self.postMessage({ type: "execute_result", result: { "text/plain": result.toString() } });
+            }
           }
           self.postMessage({ type: "execute_completed" });
         }
