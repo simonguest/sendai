@@ -9,10 +9,16 @@ const id = "test"
 
 onMounted(async () => {
   try {
-    const response = await fetch("/samples/kitchen_sink.ipynb");
+    // Get URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    // Check if sample parameter exists, otherwise use default
+    const notebookFile = urlParams.has('sample') ? urlParams.get('sample') : 'kitchen_sink.ipynb';
+    
+    // Fetch the notebook file
+    const response = await fetch(`/samples/${notebookFile}`);
     const contents = await response.text();
     notebook.value = JSON.parse(contents);
-    console.log("Notebook loaded");
+    console.log(`Notebook ${notebookFile} loaded`);
   } catch (error) {
     console.error("Error loading notebook:", error);
   }
