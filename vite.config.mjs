@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import { viteStaticCopy } from "vite-plugin-static-copy";
+import vuetify from "vite-plugin-vuetify"
 import { resolve } from "path";
 
 import ignorePyodidePlugin from "./vite-plugin-ignore-pyodide";
@@ -18,6 +19,7 @@ export default defineConfig({
       structured: true
     }),
     vue(),
+    vuetify({ autoImport: true }),
     ignorePyodidePlugin(),
   ],
   publicDir: false,
