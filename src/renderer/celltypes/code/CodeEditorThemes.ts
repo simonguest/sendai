@@ -6,7 +6,7 @@ export const defaultTheme = EditorView.theme({
     border: "1px solid #c0c0c0"
   },
   ".cm-content": {
-    fontFamily: "FiraCode, monospace",
+    fontFamily: "JetBrainsMono, monospace",
     minHeight: "100px"
   },
   ".cm-gutters": {

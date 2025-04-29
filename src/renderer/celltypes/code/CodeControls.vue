@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { pyodideStore } from "@/renderer/store/pyodideStore";
 import { notebookStore } from "@/renderer/store/notebookStore";
-import { defineProps } from "vue";
 
 const props = defineProps<{
   id: string;
