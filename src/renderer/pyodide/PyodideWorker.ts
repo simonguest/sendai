@@ -90,7 +90,6 @@ self.onmessage = async event => {
           const result = await pyodide.runPythonAsync(`${code}`);
           console.log("PyodideProvider: Returning result");
           if (result) {
-            console.log(result.type);
             if (typeof result == "object") {
               // Add result representations, if they exist
               if ("_repr_svg_" in result){
