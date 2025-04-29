@@ -5,18 +5,20 @@ import { resolve } from "path";
 
 import ignorePyodidePlugin from "./vite-plugin-ignore-pyodide";
 
+
 export default defineConfig({
   plugins: [
-    vue(),
-    ignorePyodidePlugin(),
     viteStaticCopy({
       targets: [
         {
-          src: "assets/**",
-          dest: "assets",
+          src: ["samples/**","pyodide/**"],
+          dest: "",
         },
       ],
+      structured: true
     }),
+    vue(),
+    ignorePyodidePlugin(),
   ],
   publicDir: false,
   build: {
