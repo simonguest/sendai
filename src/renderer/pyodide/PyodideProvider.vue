@@ -30,14 +30,14 @@ onMounted(async () => {
         break;
       case "stdout":
         if (pyodideStore.runningCellId) {
-          notebookStore.addStdOut(pyodideStore.runningCellId, text);
+          notebookStore.addStdout(pyodideStore.runningCellId, text);
         }
         break;
       case "execute_result":
         if (pyodideStore.runningCellId) {
           if (result) {
             // result will be null if the code didn't return any result
-            notebookStore.setExecutionResult(pyodideStore.runningCellId, result);
+            notebookStore.setResult(pyodideStore.runningCellId, result);
           }
         }
         break;
@@ -64,7 +64,7 @@ watch(
   newExecutionStatus => {
     if (newExecutionStatus === "queued" && pyodideStore.runningCellId != null) {
       // Grab the source from the notebook
-      const code = notebookStore.getCellSource(pyodideStore.runningCellId);
+      const code = notebookStore.getSource(pyodideStore.runningCellId);
       worker.postMessage({
         type: "run",
         cellId: pyodideStore.runningCellId,

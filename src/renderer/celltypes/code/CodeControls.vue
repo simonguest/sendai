@@ -11,6 +11,10 @@ const runCode = () => {
   pyodideStore.executeCell(props.id);
 };
 
+const clearOutputs = () => {
+  notebookStore.clearOutputs(props.id);
+};
+
 const interruptCode = () => {
   pyodideStore.interruptExecution();
   console.log("CodeControls: Interrupt Requested");
@@ -32,17 +36,19 @@ const interruptCode = () => {
           size="32"
           icon="mdi-stop"
           @click="interruptCode"
-          :disabled="pyodideStore.executionStatus === 'idle'"
+          :disabled="pyodideStore.executionStatus === 'idle' || pyodideStore.runningCellId !== id"
         />
-        <v-btn size="32" icon="mdi-trash-can-outline" />
+      </v-btn-group>
+      <v-btn-group rounded="lg" class="pl-4">
+        <v-btn size="32" icon="mdi-broom" @click="clearOutputs" />
       </v-btn-group>
     </div>
 
     <div>
-      <v-btn-toggle rounded="lg">
-        <v-btn icon="mdi-monitor" size="32"></v-btn>
-        <v-btn icon="mdi-console" size="32"></v-btn>
-        <v-btn icon="mdi-alert-circle-outline" size="32"></v-btn>
+      <v-btn-toggle rounded="lg" mandatory>
+        <v-btn icon="mdi-monitor" size="32" v-if="notebookStore.hasResult(id)"></v-btn>
+        <v-btn icon="mdi-console" size="32" v-if="notebookStore.hasStdout(id)"></v-btn>
+        <v-btn icon="mdi-alert-circle-outline" size="32" v-if="notebookStore.hasError(id)"></v-btn>
       </v-btn-toggle>
     </div>
   </div>

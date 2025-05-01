@@ -23,7 +23,7 @@ onMounted(() => {
       EditorView.updateListener.of(update => {
         if (update.docChanged) {
           const newSource = update.state.doc.toString();
-          notebookStore.setCellSource(
+          notebookStore.setSource(
             props.id,
             newSource.includes("\n") ? newSource.split("\n") : [newSource]
           );

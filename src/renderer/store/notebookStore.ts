@@ -10,11 +10,11 @@ export const notebookStore = reactive({
     }
     return this.content.cells.find(cell => cell.id === cellId);
   },
-  getCellSource(cellId: string) {
+  getSource(cellId: string) {
     const cell = this.findCell(cellId);
     return cell ? cell.source : null;
   },
-  setCellSource(cellId: string, source: string[]) {
+  setSource(cellId: string, source: string[]) {
     const cell = this.findCell(cellId);
     if (cell) {
       // Add \n chars to the end of each source line
@@ -28,7 +28,7 @@ export const notebookStore = reactive({
       cell.outputs = [];
     }
   },
-  addStdOut(cellId: string, stdout: string){
+  addStdout(cellId: string, stdout: string){
     const cell = this.findCell(cellId);
     if (cell) {
       if (!cell.outputs) cell.outputs = [];
@@ -49,7 +49,18 @@ export const notebookStore = reactive({
       }
     }
   },
-  setExecutionResult(cellId: string, result: any){
+  hasStdout(cellId: string) : boolean {
+    const cell = this.findCell(cellId);
+    if (cell) {
+      const index = cell.outputs?.findIndex(
+        (output: Output) => output.output_type === "stream" && output.name === "stdout"
+      );
+      return (index !== -1);
+    } else {
+      return false;
+    }
+  },
+  setResult(cellId: string, result: any){
     const cell = this.findCell(cellId);
     if (cell) {
       if (!cell.outputs) cell.outputs = [];
@@ -75,6 +86,17 @@ export const notebookStore = reactive({
       }
     }
   },
+  hasResult(cellId: string) : boolean {
+    const cell = this.findCell(cellId);
+    if (cell) {
+      const index = cell.outputs?.findIndex(
+        (output: Output) => output.output_type === "execute_result"
+      );
+      return (index !== -1);
+    } else {
+      return false;
+    }
+  },
   setError(cellId: string, traceback: string | string[]){
     const cell = this.findCell(cellId);
     if (cell) {
@@ -84,6 +106,17 @@ export const notebookStore = reactive({
         output_type: "error",
         traceback: tracebackArray
       });
+    }
+  },
+  hasError(cellId: string) : boolean {
+    const cell = this.findCell(cellId);
+    if (cell) {
+      const index = cell.outputs?.findIndex(
+        (output: Output) => output.output_type === "error"
+      );
+      return (index !== -1);
+    } else {
+      return false;
     }
   },
   loadNotebook(notebook: Notebook) {

@@ -10,7 +10,7 @@ defineProps<{
 </script>
 
 <template>
-  <v-card max-width="800" variant="elevated" elevation="2" color="#F3F4F6E5" class="mb-2 pt-2 pb-2 ma-auto rounded-lg">
+  <v-card max-width="800" variant="elevated" elevation="2" color="surface-light" class="mb-2 pt-2 pb-2 ma-auto rounded-lg">
     <v-card-text>
       <CodeEditor :source="cell.source" :id="cell.id" />
     </v-card-text>

@@ -4,7 +4,6 @@ import { createApp } from "vue";
 import "vuetify/styles";
 import { createVuetify } from "vuetify";
 import { aliases, mdi } from 'vuetify/iconsets/mdi'
-import { VIconBtn } from 'vuetify/labs/VIconBtn'
 
 // Components
 import App from "./App.vue";
@@ -17,8 +16,8 @@ const vuetify = createVuetify({
       mdi,
     },
   },
-  components: {
-    VIconBtn,
+  theme: {
+    defaultTheme: "light"
   }
 });
 
