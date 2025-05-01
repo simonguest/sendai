@@ -37,6 +37,7 @@ watch(
 
 <style>
 @import "@renderer/styles.css";
+@import "@renderer/icons.min.css";
 
 .renderer-container {
   padding-left: 8px;

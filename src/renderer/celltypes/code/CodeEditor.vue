@@ -39,14 +39,5 @@ onMounted(() => {
 </script>
 
 <template>
-  <div id="code-editor-container">
-    <div :id="`code-editor-${props.id}`" />
-  </div>
+  <div :id="`code-editor-${props.id}`" />
 </template>
-
-<style>
-.CodeMirror {
-  font-family: Arial, monospace;
-  font-size: 16px;
-}
-</style>

@@ -10,48 +10,15 @@ defineProps<{
 </script>
 
 <template>
-  <div class="code-cell">
-    <div class="code-control-column">
-      <CodeControls :id="cell.id"/>
-    </div>
-    <div class="code-editor-column">
+  <v-card max-width="800" variant="elevated" elevation="2" color="#F3F4F6E5" class="mb-2 pt-2 pb-2 ma-auto rounded-lg">
+    <v-card-text>
       <CodeEditor :source="cell.source" :id="cell.id" />
+    </v-card-text>
+    <v-card-actions class="pl-4 pr-4">
+      <CodeControls :id="cell.id"/>
+    </v-card-actions>
+    <v-card-text>
       <CodeOutputs :outputs="cell.outputs" />
-    </div>
-  </div>
+    </v-card-text>
+  </v-card>
 </template>
-
-<style>
-.code-cell {
-  display: flex;
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.code-control-column {
-  width: 30px;
-}
-
-.code-editor-column {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-@media (width < 600px) {
-  .code-cell {
-    flex-direction: column;
-    height: auto;
-  }
-
-  .code-control-column {
-    width: 100%;
-    height: auto;
-    padding-bottom: 5px;
-  }
-
-  .code-editor-column {
-    width: 100%;
-  }
-}
-</style>

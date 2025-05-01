@@ -13,39 +13,37 @@ const runCode = () => {
 
 const interruptCode = () => {
   pyodideStore.interruptExecution();
-  console.log("Interrupt Requested");
+  console.log("CodeControls: Interrupt Requested");
 };
 </script>
 
 <template>
-  <button
-    class="play-button"
-    @click="runCode"
-    :class="{
-      'play-button-ready':
-        pyodideStore.workerStatus === 'ready' && pyodideStore.executionStatus === 'idle',
-    }"
-    :disabled="pyodideStore.workerStatus !== 'ready'"
-    aria-label="Run code"
-  ></button>
-  <button class="stop-button" @click="interruptCode">S</button>
+  <div class="d-flex justify-space-between align-center w-100">
+    <div>
+      <v-btn-group rounded="lg">
+        <v-btn
+          size="32"
+          icon="mdi-play-outline"
+          @click="runCode"
+          :disabled="pyodideStore.executionStatus !== 'idle'"
+          aria-label="Run code"
+        />
+        <v-btn
+          size="32"
+          icon="mdi-stop"
+          @click="interruptCode"
+          :disabled="pyodideStore.executionStatus === 'idle'"
+        />
+        <v-btn size="32" icon="mdi-trash-can-outline" />
+      </v-btn-group>
+    </div>
+
+    <div>
+      <v-btn-toggle rounded="lg">
+        <v-btn icon="mdi-monitor" size="32"></v-btn>
+        <v-btn icon="mdi-console" size="32"></v-btn>
+        <v-btn icon="mdi-alert-circle-outline" size="32"></v-btn>
+      </v-btn-toggle>
+    </div>
+  </div>
 </template>
-
-<style>
-.play-button {
-  background-image: url("@renderer/icons/play_circle.svg");
-  background-repeat: no-repeat;
-  background-position: center;
-  background-color: transparent;
-  border: none;
-  padding: 0;
-  width: 24px;
-  height: 24px;
-  filter: opacity(25%);
-}
-
-.play-button-ready {
-  filter: opacity(100%);
-  cursor: pointer;
-}
-</style>
