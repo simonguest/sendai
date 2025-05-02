@@ -4,7 +4,7 @@ import type { Notebook, Output } from "@/renderer/schemas/notebook";
 
 export const notebookStore = reactive({
   content: {} as Notebook,
-  findCell(cellId: string){
+  findCell(cellId: string) {
     if (!this.content.cells) {
       return null;
     }
@@ -19,16 +19,16 @@ export const notebookStore = reactive({
     if (cell) {
       // Add \n chars to the end of each source line
       source = source.map(line => line + "\n");
-      cell.source = source
+      cell.source = source;
     }
   },
-  clearOutputs(cellId: string){
+  clearOutputs(cellId: string) {
     const cell = this.findCell(cellId);
     if (cell) {
       cell.outputs = [];
     }
   },
-  addStdout(cellId: string, stdout: string){
+  addStdout(cellId: string, stdout: string) {
     const cell = this.findCell(cellId);
     if (cell) {
       if (!cell.outputs) cell.outputs = [];
@@ -49,75 +49,97 @@ export const notebookStore = reactive({
       }
     }
   },
-  hasStdout(cellId: string) : boolean {
+  hasStdout(cellId: string): boolean {
     const cell = this.findCell(cellId);
     if (cell) {
       const index = cell.outputs?.findIndex(
         (output: Output) => output.output_type === "stream" && output.name === "stdout"
       );
-      return (index !== -1);
+      return index !== -1;
     } else {
       return false;
     }
   },
-  setResult(cellId: string, result: any){
+  getStdout(cellId: string) {
+    let console = "";
+    const cell = this.findCell(cellId);
+    if (cell) {
+      cell.outputs?.forEach(output => {
+        if (output.output_type === "stream") {
+          console += output.text?.join("") || "";
+        }
+      });
+    }
+    return console;
+  },
+  setResult(cellId: string, result: any) {
     const cell = this.findCell(cellId);
     if (cell) {
       if (!cell.outputs) cell.outputs = [];
-      
+
       // Find if there's already an execute_result output
       const executeResultIndex = cell.outputs.findIndex(
         (output: Output) => output.output_type === "execute_result"
       );
-      
+
       if (executeResultIndex !== -1) {
         // If execute_result already exists, merge the data objects
         const existingData = cell.outputs[executeResultIndex].data || {};
         cell.outputs[executeResultIndex].data = {
           ...existingData,
-          ...result
+          ...result,
         };
       } else {
         // If no execute_result exists, create a new one
         cell.outputs.push({
           output_type: "execute_result",
-          data: result
+          data: result,
         });
       }
     }
   },
-  hasResult(cellId: string) : boolean {
+  hasResult(cellId: string): boolean {
     const cell = this.findCell(cellId);
     if (cell) {
       const index = cell.outputs?.findIndex(
         (output: Output) => output.output_type === "execute_result"
       );
-      return (index !== -1);
+      return index !== -1;
     } else {
       return false;
     }
   },
-  setError(cellId: string, traceback: string | string[]){
+  setError(cellId: string, traceback: string | string[]) {
     const cell = this.findCell(cellId);
     if (cell) {
       if (!cell.outputs) cell.outputs = [];
       const tracebackArray = Array.isArray(traceback) ? traceback : traceback.split("\n");
       cell.outputs.push({
         output_type: "error",
-        traceback: tracebackArray
+        traceback: tracebackArray,
       });
     }
   },
-  hasError(cellId: string) : boolean {
+  hasError(cellId: string): boolean {
     const cell = this.findCell(cellId);
     if (cell) {
-      const index = cell.outputs?.findIndex(
-        (output: Output) => output.output_type === "error"
-      );
-      return (index !== -1);
+      const index = cell.outputs?.findIndex((output: Output) => output.output_type === "error");
+      return index !== -1;
     } else {
       return false;
     }
+  },
+  getError(cellId: string) {
+    let error = "";
+    const cell = this.findCell(cellId);
+    if (cell) {
+      cell.outputs?.forEach(output => {
+        if (output.output_type === "error") {
+          error += output.traceback?.join("") || "";
+        }
+      });
+    }
+    return error;
   },
   loadNotebook(notebook: Notebook) {
     // check for the existance of valid cell ids - if no valid one, assign a UUID

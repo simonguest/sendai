@@ -1,12 +1,17 @@
 <script setup lang="ts">
+import { ref } from "vue";
 import CodeControls from "./CodeControls.vue";
 import CodeEditor from "./CodeEditor.vue";
 import CodeOutputs from "./CodeOutputs.vue";
 import type { Cell } from "@/renderer/schemas/notebook";
 
+export type SelectedOutput = "none" | "result" | "stdout" | "error";
+
 defineProps<{
   cell: Cell;
 }>();
+
+const selectedOutput = ref<SelectedOutput>("none");
 </script>
 
 <template>
@@ -15,10 +20,10 @@ defineProps<{
       <CodeEditor :source="cell.source" :id="cell.id" />
     </v-card-text>
     <v-card-actions class="pl-4 pr-4">
-      <CodeControls :id="cell.id"/>
+      <CodeControls :id="cell.id" v-model:selectedOutput="selectedOutput"/>
     </v-card-actions>
     <v-card-text>
-      <CodeOutputs :outputs="cell.outputs" />
+      <CodeOutputs :id="cell.id" :outputs="cell.outputs" :selectedOutput="selectedOutput" />
     </v-card-text>
   </v-card>
 </template>
