@@ -1,13 +1,13 @@
 <script setup lang="ts">
 
 defineProps<{
-  stdout: string;
+  value: any;
 }>();
 
 </script>
 
 <template>
-    <textarea class="output-console" readonly>{{ stdout }}</textarea>
+    <textarea class="output-console" readonly>{{ value }}</textarea>
 </template>
 
 <style scoped>

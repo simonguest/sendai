@@ -2,6 +2,8 @@ import { reactive } from "vue";
 import { v4 as uuidv4 } from "uuid";
 import type { Notebook, Output } from "@/renderer/schemas/notebook";
 
+export type OutputType = "result" | "stdout" | "error";
+
 export const notebookStore = reactive({
   content: {} as Notebook,
   findCell(cellId: string) {
@@ -28,6 +30,34 @@ export const notebookStore = reactive({
       cell.outputs = [];
     }
   },
+  getOutputTypes(cellId: string) {
+    let result: OutputType[] = [];
+    const cell = this.findCell(cellId);
+    if (cell) {
+      if (
+        cell.outputs?.findIndex(
+          (output: Output) => output.output_type === "execute_result"
+        ) !== -1
+      ) {
+        result.push("result");
+      }
+      if (
+        cell.outputs?.findIndex(
+          (output: Output) => output.output_type === "stream" && output.name === "stdout"
+        ) !== -1
+      ) {
+        result.push("stdout");
+      }
+      if (
+        cell.outputs?.findIndex(
+          (output: Output) => output.output_type === "error"
+        ) !== -1
+      ) {
+        result.push("error");
+      }
+    }
+    return result;
+  },
   addStdout(cellId: string, stdout: string) {
     const cell = this.findCell(cellId);
     if (cell) {
@@ -47,17 +77,6 @@ export const notebookStore = reactive({
           text: [stdout],
         });
       }
-    }
-  },
-  hasStdout(cellId: string): boolean {
-    const cell = this.findCell(cellId);
-    if (cell) {
-      const index = cell.outputs?.findIndex(
-        (output: Output) => output.output_type === "stream" && output.name === "stdout"
-      );
-      return index !== -1;
-    } else {
-      return false;
     }
   },
   getStdout(cellId: string) {
@@ -98,16 +117,19 @@ export const notebookStore = reactive({
       }
     }
   },
-  hasResult(cellId: string): boolean {
+  getResult(cellId: string) {
+    let result = {};
     const cell = this.findCell(cellId);
     if (cell) {
-      const index = cell.outputs?.findIndex(
-        (output: Output) => output.output_type === "execute_result"
-      );
-      return index !== -1;
-    } else {
-      return false;
+      cell.outputs?.forEach(output => {
+        if (output.output_type === "execute_result") {
+          if (output.data){
+            result = output.data;
+          }
+        }
+      });
     }
+    return result;
   },
   setError(cellId: string, traceback: string | string[]) {
     const cell = this.findCell(cellId);
@@ -118,15 +140,6 @@ export const notebookStore = reactive({
         output_type: "error",
         traceback: tracebackArray,
       });
-    }
-  },
-  hasError(cellId: string): boolean {
-    const cell = this.findCell(cellId);
-    if (cell) {
-      const index = cell.outputs?.findIndex((output: Output) => output.output_type === "error");
-      return index !== -1;
-    } else {
-      return false;
     }
   },
   getError(cellId: string) {
