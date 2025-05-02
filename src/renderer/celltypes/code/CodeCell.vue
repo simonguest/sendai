@@ -47,16 +47,34 @@ watch(
     <v-card-text>
       <CodeEditor :source="cell.source" :id="cell.id" />
     </v-card-text>
-    <v-card-actions class="pl-4 pr-4">
+    <v-card-actions class="pl-4 pr-4 d-flex justify-space-between">
       <CodeControls :id="cell.id" />
-      <v-tabs v-model="outputTab">
-        <v-tab value="result" v-if="outputTypes.indexOf('result') !== -1" icon
+      <v-tabs v-model="outputTab" class="ml-auto">
+        <v-tab
+          value="result"
+          v-if="outputTypes.indexOf('result') !== -1"
+          icon
+          size="32"
+          rounded="lg"
+          min-width="48"
           ><v-icon icon="mdi-monitor"
         /></v-tab>
-        <v-tab value="stdout" v-if="outputTypes.indexOf('stdout') !== -1" icon
+        <v-tab
+          value="stdout"
+          v-if="outputTypes.indexOf('stdout') !== -1"
+          icon
+          size="32"
+          min-width="48"
+          rounded="lg"
           ><v-icon icon="mdi-console"
         /></v-tab>
-        <v-tab value="error" v-if="outputTypes.indexOf('error') !== -1" icon
+        <v-tab
+          value="error"
+          v-if="outputTypes.indexOf('error') !== -1"
+          icon
+          size="32"
+          min-width="48"
+          rounded="lg"
           ><v-icon icon="mdi-alert-circle-outline"
         /></v-tab>
       </v-tabs>
@@ -64,9 +82,9 @@ watch(
 
     <v-card-text>
       <v-tabs-window v-model="outputTab" direction="vertical">
-        <v-tabs-window-item value="result"> 
+        <v-tabs-window-item value="result">
           <Result :value="notebookStore.getResult(cell.id)" />
-         </v-tabs-window-item>
+        </v-tabs-window-item>
 
         <v-tabs-window-item value="stdout" direction="vertical">
           <Console :stdout="notebookStore.getStdout(cell.id)" />
