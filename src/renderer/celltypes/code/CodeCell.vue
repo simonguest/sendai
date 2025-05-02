@@ -2,9 +2,9 @@
 import { ref, watch } from "vue";
 import CodeControls from "./CodeControls.vue";
 import CodeEditor from "./CodeEditor.vue";
-import Console from "./outputs/Console.vue";
-import Error from "./outputs/Error.vue";
-import Result from "./outputs/Result.vue";
+import Console from "./Console.vue";
+import Error from "./Error.vue";
+import Result from "./Result.vue";
 
 import type { Cell } from "@/renderer/schemas/notebook";
 import { notebookStore, OutputType } from "@/renderer/store/notebookStore";

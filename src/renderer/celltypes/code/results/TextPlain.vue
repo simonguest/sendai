@@ -7,7 +7,7 @@ defineProps<{
 </script>
 
 <template>
-    <textarea class="output-console" readonly>{{ value }}</textarea>
+    <textarea class="output-console" readonly>{{ Array.isArray(value) ? value.join("") : value }}</textarea>
 </template>
 
 <style scoped>
