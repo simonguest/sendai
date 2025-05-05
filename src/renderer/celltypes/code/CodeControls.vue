@@ -29,7 +29,8 @@ const interruptCode = () => {
           size="32"
           icon="mdi-play-outline"
           @click="runCode"
-          :disabled="pyodideStore.executionStatus !== 'idle'"
+          :disabled="pyodideStore.executionStatus !== 'idle' || pyodideStore.workerStatus !== 'ready'"
+          :loading="pyodideStore.workerStatus !== 'ready'"
           aria-label="Run code"
         />
         <v-btn
