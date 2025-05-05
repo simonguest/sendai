@@ -1,22 +1,30 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import { viteStaticCopy } from "vite-plugin-static-copy";
-import vuetify from "vite-plugin-vuetify"
+import vuetify from "vite-plugin-vuetify";
 import { resolve } from "path";
 
 import ignorePyodidePlugin from "./vite-plugin-ignore-pyodide";
-
 
 export default defineConfig({
   plugins: [
     viteStaticCopy({
       targets: [
         {
-          src: ["samples/**","pyodide/**"],
+          src: ["pyodide/**"],
+          dest: "assets",
+        },
+      ],
+      structured: false,
+    }),
+    viteStaticCopy({
+      targets: [
+        {
+          src: ["samples/**"],
           dest: "",
         },
       ],
-      structured: true
+      structured: true,
     }),
     vue(),
     vuetify({ autoImport: true }),
