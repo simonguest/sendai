@@ -12,7 +12,7 @@ onMounted(async () => {
     // Get URL parameters
     const urlParams = new URLSearchParams(window.location.search);
     // Check if sample parameter exists, otherwise use default
-    const notebookFile = urlParams.has('sample') ? urlParams.get('sample') : 'kitchen_sink.ipynb';
+    const notebookFile = urlParams.has('sample') ? urlParams.get('sample') : 'hello_world.ipynb';
     
     // Fetch the notebook file
     const response = await fetch(`/samples/${notebookFile}`);
