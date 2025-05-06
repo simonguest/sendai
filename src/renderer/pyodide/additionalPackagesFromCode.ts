@@ -1,5 +1,9 @@
+const getURL = (pkg:string) => {
+  return new URL(`/pyodide/${pkg}`, import.meta.url).toString()
+}
+
 const importToPackageMap: Record<string, string[]> = {
-  chess: ["/pyodide/chess-1.10.0-py3-none-any.whl"],
+  chess: [getURL("chess-1.10.0-py3-none-any.whl")],
 };
 
 export const additionalPackagesFromCode = (code: string) => {
