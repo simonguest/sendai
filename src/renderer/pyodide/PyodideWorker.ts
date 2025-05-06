@@ -1,6 +1,9 @@
 /// <reference lib="webworker" />
 
-import { loadPyodideModule } from "./loadPyodide";
+//@ts-ignore
+import { loadPyodide } from "https://cdn.jsdelivr.net/pyodide/v0.27.5/full/pyodide.mjs";
+
+//import { loadPyodideModule } from "./loadPyodide";
 import { additionalPackagesFromCode } from "./additionalPackagesFromCode";
 import { overrides, implementOverride } from "./overrides/implementOverride";
 
@@ -10,7 +13,7 @@ const hasSharedArrayBuffer = typeof SharedArrayBuffer !== "undefined";
 
 async function initialize() {
   console.log("PyodideWorker: Starting Pyodide initialization...");
-  const { loadPyodide } = await loadPyodideModule();
+  //const { loadPyodide } = await loadPyodideModule();
   pyodide = await loadPyodide();
 
   console.log("PyodideWorker: Checking for interrupt buffer");
