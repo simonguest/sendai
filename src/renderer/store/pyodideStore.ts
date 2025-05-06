@@ -1,23 +1,19 @@
-import { reactive } from 'vue'
+import { reactive } from "vue";
 
 export type ExecutionStatus = "idle" | "queued" | "running";
 export type InputStatus = "idle" | "waiting" | "submitted";
-export type WorkerStatus =
-  | "initializing"
-  | "ready"
-  | "error"
-  | "interrupted"
-  | "terminating";
+export type WorkerStatus = "initializing" | "ready" | "error" | "interrupted" | "terminating";
 
 export const pyodideStore = reactive({
   executionStatus: "idle" as ExecutionStatus,
   workerStatus: "initializing" as WorkerStatus,
   runningCellId: null as string | null,
-  interruptBuffer: null as Int32Array | null, 
+  interruptBuffer: null as Int32Array | null,
+  fatalErrorTrace: "",
   setInterruptBuffer(buffer: Int32Array) {
     this.interruptBuffer = buffer;
   },
-  clearInterruptBuffer(){
+  clearInterruptBuffer() {
     if (this.interruptBuffer) {
       this.interruptBuffer[0] = 0;
     }
@@ -28,7 +24,7 @@ export const pyodideStore = reactive({
     }
     this.executionStatus = "idle";
   },
-setWorkerStatus(status: WorkerStatus) {
+  setWorkerStatus(status: WorkerStatus) {
     this.workerStatus = status;
   },
   executeCell(cellId: string) {
@@ -40,5 +36,9 @@ setWorkerStatus(status: WorkerStatus) {
   executionCompleted() {
     this.runningCellId = null;
     this.executionStatus = "idle";
+  },
+  setFatalError(trace: string) {
+    this.workerStatus = "error";
+    this.fatalErrorTrace = trace;
   }
-})
+});

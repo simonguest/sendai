@@ -6,6 +6,7 @@ import { onMounted, watch } from "vue";
 import MarkdownCell from "./celltypes/markdown";
 import CodeCell from "./celltypes/code";
 import PyodideProvider from "./pyodide/PyodideProvider.vue";
+import { pyodideStore } from "./store/pyodideStore";
 
 const props = defineProps<{
   id: string;
@@ -27,9 +28,27 @@ watch(
 <template>
   <PyodideProvider :notebookId="id">
     <div class="renderer-container">
+      <v-expand-transition>
+        <v-alert
+          v-if="pyodideStore.workerStatus == 'initializing'"
+          text="The notebook is starting up..."
+          type="info"
+          variant="tonal"
+          density="compact"
+        ></v-alert>
+      </v-expand-transition>
+      <v-expand-transition>
+        <v-alert
+          v-if="pyodideStore.workerStatus == 'error'"
+          :text="`The notebook could not be started because of an error: ${pyodideStore.fatalErrorTrace}`"
+          type="error"
+          variant="tonal"
+          density="compact"
+        ></v-alert>
+      </v-expand-transition>
       <div v-for="cell in notebookStore.content.cells">
         <MarkdownCell v-if="cell.cell_type === 'markdown'" :source="cell.source" />
-        <CodeCell v-if="cell.cell_type === 'code'" :cell="cell"/>
+        <CodeCell v-if="cell.cell_type === 'code'" :cell="cell" />
       </div>
     </div>
   </PyodideProvider>

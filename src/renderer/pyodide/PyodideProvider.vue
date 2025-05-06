@@ -49,6 +49,10 @@ onMounted(async () => {
           notebookStore.setError(pyodideStore.runningCellId, error);
         }
         pyodideStore.executionCompleted();
+        break;
+      case "fatal":
+        pyodideStore.setFatalError(error);
+        break;
     }
   };
 });
