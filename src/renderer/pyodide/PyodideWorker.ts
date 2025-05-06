@@ -13,6 +13,7 @@ async function initialize() {
   const { loadPyodide } = await loadPyodideModule();
   pyodide = await loadPyodide();
 
+  console.log("PyodideWorker: Checking for interrupt buffer");
   if (hasSharedArrayBuffer) {
     const buffer = new SharedArrayBuffer(4);
     interruptBuffer = new Int32Array(buffer);
