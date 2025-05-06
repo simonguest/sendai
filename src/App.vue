@@ -15,7 +15,7 @@ onMounted(async () => {
     const notebookFile = urlParams.has('sample') ? urlParams.get('sample') : 'hello_world.ipynb';
     
     // Fetch the notebook file
-    const response = await fetch(`/samples/${notebookFile}`);
+    const response = await fetch(`./samples/${notebookFile}`);
     const contents = await response.text();
     notebook.value = JSON.parse(contents);
     console.log(`Notebook ${notebookFile} loaded`);
