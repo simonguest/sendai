@@ -7,6 +7,7 @@ import { resolve } from "path";
 import ignorePyodidePlugin from "./vite-plugin-ignore-pyodide";
 
 export default defineConfig({
+  base: "./",
   plugins: [
     viteStaticCopy({
       targets: [
