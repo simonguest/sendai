@@ -13,10 +13,10 @@ export default defineConfig({
       targets: [
         {
           src: ["pyodide/**"],
-          dest: "assets",
+          dest: "",
         },
       ],
-      structured: false,
+      structured: true,
     }),
     viteStaticCopy({
       targets: [
