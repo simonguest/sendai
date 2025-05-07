@@ -1,6 +1,5 @@
 /// <reference lib="webworker" />
 
-import { loadPyodideModule } from "./loadPyodide";
 import { additionalPackagesFromCode } from "./additionalPackagesFromCode";
 import { overrides, implementOverride } from "./overrides/implementOverride";
 
@@ -10,9 +9,8 @@ const hasSharedArrayBuffer = typeof SharedArrayBuffer !== "undefined";
 
 async function initialize() {
   console.log("PyodideWorker: Starting Pyodide initialization...");
-  //const { loadPyodide } = await loadPyodideModule();
 
-  //@ts-ignore
+  // @ts-ignore
   if (import.meta.env.DEV) {
     // Local dev server
     const { loadPyodide } = await import(new URL(/* @vite-ignore */"/pyodide/pyodide.mjs", import.meta.url).toString());

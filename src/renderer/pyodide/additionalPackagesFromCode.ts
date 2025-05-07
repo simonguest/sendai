@@ -1,5 +1,12 @@
 const getURL = (pkg:string) => {
-  return new URL(`/pyodide/${pkg}`, import.meta.url).toString()
+  // @ts-ignore
+  if (import.meta.env.DEV) {
+    // Local dev server
+    return new URL(/* @vite-ignore */`/pyodide/${pkg}`, import.meta.url).toString()
+  } else {
+    // Production
+    return new URL(/* @vite-ignore */`../pyodide/${pkg}`, import.meta.url).toString()
+  }
 }
 
 const importToPackageMap: Record<string, string[]> = {
