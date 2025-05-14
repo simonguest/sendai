@@ -10,21 +10,8 @@ const props = defineProps<{
 </script>
 
 <template>
-  {{ console.log(props.value)}}
+  <!-- {{ console.log(props.value)}} -->
   <ImageSvg v-if="value['image/svg+xml']" :value="value['image/svg+xml']" />
   <ImagePng v-if="value['image/png']" :value="value['image/png']" />
   <TextPlain v-if="value['text/plain']" :value="value['text/plain']" />
 </template>
-
-<style scoped>
-.output-console {
-  font-family: "JetBrainsMono", monospace;
-  font-size: 10pt;
-  border: none;
-  width: 100%;
-  border-radius: 5px;
-  padding: 10px;
-  min-height: 60px;
-  resize: vertical;
-}
-</style>

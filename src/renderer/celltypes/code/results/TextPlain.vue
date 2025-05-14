@@ -1,13 +1,13 @@
 <script setup lang="ts">
-
 defineProps<{
   value: any;
 }>();
-
 </script>
 
 <template>
-    <textarea class="output-console" readonly>{{ Array.isArray(value) ? value.join("") : value }}</textarea>
+  <textarea class="output-console" readonly>{{
+    Array.isArray(value) ? value.join("") : value
+  }}</textarea>
 </template>
 
 <style scoped>
@@ -18,7 +18,9 @@ defineProps<{
   width: 100%;
   border-radius: 5px;
   padding: 10px;
-  min-height: 60px;
-  resize: vertical;
+  height: auto;
+  max-height: 400px;
+  overflow-y: auto;
+  resize: none;
 }
 </style>

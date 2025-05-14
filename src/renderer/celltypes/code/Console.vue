@@ -1,13 +1,11 @@
 <script setup lang="ts">
-
 defineProps<{
   stdout: string;
 }>();
-
 </script>
 
 <template>
-    <textarea class="output-console" readonly>{{ stdout }}</textarea>
+  <textarea v-if="stdout" class="output-console" readonly>{{ stdout }}</textarea>
 </template>
 
 <style scoped>
@@ -18,7 +16,9 @@ defineProps<{
   width: 100%;
   border-radius: 5px;
   padding: 10px;
-  min-height: 60px;
-  resize: vertical;
+  height: auto;
+  max-height: calc(10em + 20px);
+  overflow-y: auto;
+  resize: none;
 }
 </style>
