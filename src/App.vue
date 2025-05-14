@@ -2,7 +2,7 @@
 import { ref, onMounted } from "vue";
 import type { Notebook } from "@/renderer/schemas/notebook";
 
-import { settingsStore, Theme } from "@renderer/store/settingsStore";
+import { settingsStore, Theme, Locale } from "@renderer/store/settingsStore";
 
 import Renderer from "@renderer/Renderer.vue";
 
@@ -19,6 +19,11 @@ onMounted(async () => {
     if (urlParams.has('theme')) {
       const themeParam = urlParams.get('theme') || 'dark';
       settingsStore.setTheme(themeParam as Theme);
+    }
+    // Check if locale parameter exists and apply accordingly
+    if (urlParams.has('locale')) {
+      const localeParam = urlParams.get('locale') || 'en-US';
+      settingsStore.setLocale(localeParam as Locale);
     }
     
     // Fetch the notebook file

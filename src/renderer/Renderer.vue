@@ -54,7 +54,7 @@ watch(
         ></v-alert>
       </v-expand-transition>
       <div v-for="cell in notebookStore.content.cells">
-        <MarkdownCell v-if="cell.cell_type === 'markdown'" :source="cell.source" />
+        <MarkdownCell v-if="cell.cell_type === 'markdown'" :source="cell.source" :metadata="cell.metadata" />
         <CodeCell v-if="cell.cell_type === 'code'" :cell="cell" />
       </div>
     </div>
