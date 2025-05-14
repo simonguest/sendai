@@ -80,7 +80,7 @@ watch(
       </v-tabs>
     </v-card-actions>
 
-    <v-card-text>
+    <v-card-text v-show="props.cell.outputs? props.cell.outputs.length > 0 : false">
       <v-tabs-window v-model="outputTab" direction="vertical">
         <v-tabs-window-item value="result">
           <Result :value="notebookStore.getResult(cell.id)" />
