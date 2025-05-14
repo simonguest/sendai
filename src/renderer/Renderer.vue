@@ -2,11 +2,13 @@
 import { notebookStore } from "@renderer/store/notebookStore";
 import type { Notebook } from "@renderer/schemas/notebook";
 import { onMounted, watch } from "vue";
+import { useTheme } from "vuetify";
 
 import MarkdownCell from "./celltypes/markdown";
 import CodeCell from "./celltypes/code";
 import PyodideProvider from "./pyodide/PyodideProvider.vue";
 import { pyodideStore } from "./store/pyodideStore";
+import { settingsStore } from "./store/settingsStore";
 
 const props = defineProps<{
   id: string;
@@ -14,6 +16,11 @@ const props = defineProps<{
 }>();
 
 onMounted(() => {
+  // Set the correct theme
+  const theme = useTheme();
+  theme.global.name.value = settingsStore.theme;
+
+  // Load the initial notebook
   notebookStore.loadNotebook(props.initialNotebook);
 });
 

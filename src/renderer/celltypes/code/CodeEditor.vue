@@ -5,7 +5,10 @@ import { EditorView, basicSetup } from "codemirror";
 import { python } from "@codemirror/lang-python";
 
 import { notebookStore } from "@/renderer/store/notebookStore";
-import { defaultTheme } from "./CodeEditorThemes";
+import { settingsStore } from "@/renderer/store/settingsStore";
+
+import { basicLight } from "./themes/basicLight";
+import { materialDark } from "./themes/materialDark";
 
 const props = defineProps<{
   source: string[] | undefined;
@@ -13,12 +16,20 @@ const props = defineProps<{
 }>();
 
 onMounted(() => {
+  // Figure out the right theme to use
+  let theme = basicLight; // default
+  switch (settingsStore.theme){
+    case "dark":
+      theme = materialDark;
+      break;
+  }
+
   const startState = EditorState.create({
     doc: props.source?.join(""),
     extensions: [
       basicSetup,
       python(),
-      defaultTheme,
+      theme,
       EditorView.lineWrapping,
       EditorView.updateListener.of(update => {
         if (update.docChanged) {

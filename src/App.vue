@@ -2,6 +2,8 @@
 import { ref, onMounted } from "vue";
 import type { Notebook } from "@/renderer/schemas/notebook";
 
+import { settingsStore, Theme } from "@renderer/store/settingsStore";
+
 import Renderer from "@renderer/Renderer.vue";
 
 const notebook = ref<Notebook | null>(null);
@@ -13,6 +15,11 @@ onMounted(async () => {
     const urlParams = new URLSearchParams(window.location.search);
     // Check if sample parameter exists, otherwise use default
     const notebookFile = urlParams.has('sample') ? urlParams.get('sample') : 'hello_world.ipynb';
+    // Check if theme parameter exists and apply accordingly
+    if (urlParams.has('theme')) {
+      const themeParam = urlParams.get('theme') || 'dark';
+      settingsStore.setTheme(themeParam as Theme);
+    }
     
     // Fetch the notebook file
     const response = await fetch(`./samples/${notebookFile}`);
