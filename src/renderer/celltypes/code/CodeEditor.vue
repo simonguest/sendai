@@ -12,6 +12,7 @@ import { materialDark } from "./themes/materialDark";
 
 const props = defineProps<{
   source: string[] | undefined;
+  metadata: any;
   id: string;
 }>();
 

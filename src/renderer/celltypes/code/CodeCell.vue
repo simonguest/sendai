@@ -8,6 +8,7 @@ import Result from "./Result.vue";
 
 import type { Cell } from "@/renderer/schemas/notebook";
 import { notebookStore, OutputType } from "@/renderer/store/notebookStore";
+import { settingsStore } from "@/renderer/store/settingsStore";
 
 const props = defineProps<{
   cell: Cell;
@@ -45,7 +46,7 @@ watch(
     class="mb-2 pt-2 pb-2 ma-auto rounded-lg"
   >
     <v-card-text>
-      <CodeEditor :source="cell.source" :id="cell.id" />
+      <CodeEditor :source="notebookStore.getLocalizedSource(cell.id, settingsStore.locale)" :id="cell.id" :metadata="cell.metadata"/>
     </v-card-text>
     <v-card-actions class="pl-4 pr-4 d-flex justify-space-between">
       <CodeControls :id="cell.id" />

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { computed } from "vue";
 import { pyodideStore } from "@/renderer/store/pyodideStore";
 import { notebookStore } from "@/renderer/store/notebookStore";
 

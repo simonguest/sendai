@@ -16,6 +16,30 @@ export const notebookStore = reactive({
     const cell = this.findCell(cellId);
     return cell ? cell.source : null;
   },
+  getLocalizedSource(cellId: string, locale: string) : string[] | undefined {
+    const cell = this.findCell(cellId);
+    if (!cell) return undefined;
+    if (!cell.source) return undefined;
+
+    return cell.source
+      .map(line => {
+        if (line === "__TEMPLATE__") {
+          if (cell.metadata["__TEMPLATE__"][locale]) {
+            return cell.metadata["__TEMPLATE__"][locale];
+          } else {
+            // locale not found in template. Return default value instead.
+            if (cell.metadata["__TEMPLATE__"]["default"]) {
+              return cell.metadata["__TEMPLATE__"]["default"];
+            } else {
+              return "";
+            }
+          }
+        } else {
+          return line;
+        }
+      })
+      .flat();
+  },
   setSource(cellId: string, source: string[]) {
     const cell = this.findCell(cellId);
     if (cell) {
@@ -35,9 +59,7 @@ export const notebookStore = reactive({
     const cell = this.findCell(cellId);
     if (cell) {
       if (
-        cell.outputs?.findIndex(
-          (output: Output) => output.output_type === "execute_result"
-        ) !== -1
+        cell.outputs?.findIndex((output: Output) => output.output_type === "execute_result") !== -1
       ) {
         result.push("result");
       }
@@ -48,11 +70,7 @@ export const notebookStore = reactive({
       ) {
         result.push("stdout");
       }
-      if (
-        cell.outputs?.findIndex(
-          (output: Output) => output.output_type === "error"
-        ) !== -1
-      ) {
+      if (cell.outputs?.findIndex((output: Output) => output.output_type === "error") !== -1) {
         result.push("error");
       }
     }
@@ -123,7 +141,7 @@ export const notebookStore = reactive({
     if (cell) {
       cell.outputs?.forEach(output => {
         if (output.output_type === "execute_result") {
-          if (output.data){
+          if (output.data) {
             result = output.data;
           }
         }

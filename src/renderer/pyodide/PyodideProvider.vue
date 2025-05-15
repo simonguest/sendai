@@ -2,7 +2,8 @@
 import { onMounted, onUnmounted, watch } from "vue";
 
 import { notebookStore } from "@renderer/store/notebookStore";
-import { pyodideStore, WorkerStatus } from "@renderer/store/pyodideStore";
+import { settingsStore } from "@renderer/store/settingsStore";
+import { pyodideStore } from "@renderer/store/pyodideStore";
 
 const props = defineProps<{ notebookId: string }>();
 let worker: Worker;
@@ -68,7 +69,7 @@ watch(
   newExecutionStatus => {
     if (newExecutionStatus === "queued" && pyodideStore.runningCellId != null) {
       // Grab the source from the notebook
-      const code = notebookStore.getSource(pyodideStore.runningCellId);
+      const code = notebookStore.getLocalizedSource(pyodideStore.runningCellId, settingsStore.locale);
       worker.postMessage({
         type: "run",
         cellId: pyodideStore.runningCellId,
