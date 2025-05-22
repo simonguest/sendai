@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { marked } from "marked";
 
-import { settingsStore } from "@/renderer/store/settingsStore";
+import { settingsStore } from "@renderer/store/settingsStore";
 
 defineProps<{
   metadata : any,

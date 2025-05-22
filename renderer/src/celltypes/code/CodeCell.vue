@@ -6,9 +6,9 @@ import Console from "./Console.vue";
 import Error from "./Error.vue";
 import Result from "./Result.vue";
 
-import type { Cell } from "@/renderer/schemas/notebook";
-import { notebookStore, OutputType } from "@/renderer/store/notebookStore";
-import { settingsStore } from "@/renderer/store/settingsStore";
+import type { Cell } from "@renderer/schemas/notebook";
+import { notebookStore, OutputType } from "@renderer/store/notebookStore";
+import { settingsStore } from "@renderer/store/settingsStore";
 
 const props = defineProps<{
   cell: Cell;

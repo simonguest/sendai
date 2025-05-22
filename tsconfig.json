@@ -14,9 +14,9 @@
     "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@renderer/*": ["src/renderer/*"],
+      "@renderer/*": ["renderer/src/*"],
+      "@shared/*": ["shared/*"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
+  "include": ["**/*.ts", "**/*.d.ts", "**/*.vue"],
 }

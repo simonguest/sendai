@@ -4,8 +4,8 @@ import { EditorState } from "@codemirror/state";
 import { EditorView, basicSetup } from "codemirror";
 import { python } from "@codemirror/lang-python";
 
-import { notebookStore } from "@/renderer/store/notebookStore";
-import { settingsStore } from "@/renderer/store/settingsStore";
+import { notebookStore } from "@renderer/store/notebookStore";
+import { settingsStore } from "@renderer/store/settingsStore";
 
 import { basicLight } from "./themes/basicLight";
 import { materialDark } from "./themes/materialDark";

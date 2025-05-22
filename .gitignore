@@ -2,7 +2,6 @@
 __pycache__/
 *.py[oc]
 build/
-dist/
 wheels/
 *.egg-info
 
@@ -17,3 +16,6 @@ scratch*.py
 
 # Mac finder
 .DS_Store
+
+# Dist output folders
+dist

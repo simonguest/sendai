@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import type { Notebook } from "@/renderer/schemas/notebook";
+import type { Notebook } from "@renderer/schemas/notebook";
 
 import { settingsStore, Theme, Locale } from "@renderer/store/settingsStore";
 

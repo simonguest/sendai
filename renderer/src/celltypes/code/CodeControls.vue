@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { pyodideStore } from "@/renderer/store/pyodideStore";
-import { notebookStore } from "@/renderer/store/notebookStore";
+import { pyodideStore } from "@renderer/store/pyodideStore";
+import { notebookStore } from "@renderer/store/notebookStore";
 
 const props = defineProps<{
   id: string;
