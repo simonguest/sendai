@@ -132,7 +132,7 @@ textarea:not([rows]) {
 html,
 body {
   overscroll-behavior-y: none;
-  overflow: hidden;
+  /* overflow: hidden; */ /* Causing issues with Android WebView */
   height: 100%;
 }
 #app {
