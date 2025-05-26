@@ -2,18 +2,24 @@
   "name": "k12nb",
   "private": true,
   "workspaces": [
-    "renderer"
+    "renderer",
+    "shells/web"
   ],
   "scripts": {
     "dev:renderer": "npm run dev --workspace=renderer",
+    "dev:web": "npm run dev --workspace=shells/web",
     
     "build:renderer": "npm run build --workspace=renderer",
+    "build:web": "npm run build --workspace=shells/web",
 
     "clean:renderer": "npm run clean --workspace=renderer",
+    "clean:web": "npm run clean --workspace=shells/web",
+    "clean": "npm run clean:renderer && npm run clean:web",
 
     "test:renderer": "npm run test --workspace=renderer",
+    "test:web": "npm run test --workspace=shells/web",
 
-    "test": "npm-run-all test:renderer"
+    "test": "npm-run-all test:renderer test:web"
   },
   "devDependencies": {
     "concurrently": "^8.2.0",

@@ -1,0 +1,26 @@
+{
+  "name": "k12nb-webshell",
+  "version": "0.1.0",
+  "description": "k12nb-webshell",
+  "scripts": {
+    "sync-assets": "cp -r ../../renderer/public/* ./public/",
+    "dev": "npm run sync-assets && vite",
+    "build": "vite build",
+    "clean": "rm -rf ./dist",
+    "preview": "vite preview"
+  },
+  "author": "Simon Guest",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "vue": "^3.5.13",
+    "vuetify": "^3.8.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.10",
+    "@vitejs/plugin-vue": "^5.2.3",
+    "@vue/tsconfig": "^0.7.0",
+    "typescript": "^5.8.2",
+    "vite": "^6.2.2",
+    "vite-plugin-vuetify": "^2.1.1"
+  }
+}
