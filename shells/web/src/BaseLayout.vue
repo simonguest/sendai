@@ -1,30 +1,41 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import type { Notebook } from "@renderer/schemas/notebook";
-import Renderer from "@renderer/Renderer.vue";
+import { ref, computed } from "vue";
+import { useRouter, useRoute } from "vue-router";
 
-// Define props
-interface Props {
-  initialNotebook: Notebook;
-  id: string;
-}
+const router = useRouter();
+const route = useRoute();
 
-const props = defineProps<Props>();
-const activeTab = ref(0);
-
-const handleTabChange = (tab: number) => {
-  activeTab.value = tab;
-  // TODO: Handle navigation logic here when ready
-  console.log(`Navigated to tab: ${tab}`);
+// Map routes to tab indices
+const routeToTab = {
+  '/notebooks': 0,
+  '/curriculum': 1,
+  '/settings': 2
 };
+
+const tabToRoute = {
+  0: '/notebooks',
+  1: '/curriculum',
+  2: '/settings'
+};
+
+// Compute active tab based on current route
+const activeTab = computed({
+  get: () => routeToTab[route.path as keyof typeof routeToTab] ?? 0,
+  set: (value: number) => {
+    const targetRoute = tabToRoute[value as keyof typeof tabToRoute];
+    if (targetRoute && route.path !== targetRoute) {
+      router.push(targetRoute);
+    }
+  }
+});
 </script>
 
 <template>
   <v-app>
     <v-main>
-      <!-- Main content area with the renderer -->
+      <!-- Main content area with router view -->
       <div class="content-container">
-        <Renderer :initial-notebook="props.initialNotebook" :id="props.id"/>
+        <router-view />
       </div>
     </v-main>
 
@@ -33,7 +44,6 @@ const handleTabChange = (tab: number) => {
       v-model="activeTab"
       color="primary"
       grow
-      @update:model-value="handleTabChange"
     >
       <v-btn value="0">
         <v-icon>mdi-notebook</v-icon>
