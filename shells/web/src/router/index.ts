@@ -6,7 +6,7 @@ import SettingsView from '../views/Settings.vue'
 const routes = [
   {
     path: '/',
-    redirect: '/notebooks'
+    redirect: 'notebooks'
   },
   {
     path: '/notebooks',
@@ -26,7 +26,8 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
+  // @ts-ignore
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes
 })
 
