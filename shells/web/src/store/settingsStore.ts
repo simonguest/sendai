@@ -1,11 +1,9 @@
 import { reactive } from "vue";
-import { Theme, DEFAULT_THEME } from "@shared/types";
-
-export type Locale = "en-US" | "hi-IN" | "ja-JP";
+import { Theme, DEFAULT_THEME, Locale, DEFAULT_LOCALE} from "@shared/types";
 
 export const settingsStore = reactive({
   theme: (localStorage.getItem('theme') as Theme) || DEFAULT_THEME,
-  locale: (localStorage.getItem('locale') as Locale) || "en-US" as Locale,
+  locale: (localStorage.getItem('locale') as Locale) || DEFAULT_LOCALE,
   setTheme(theme: Theme) {
     this.theme = theme;
     localStorage.setItem('theme', theme);

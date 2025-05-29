@@ -3,7 +3,7 @@ import { notebookStore } from "@renderer/store/notebookStore";
 import type { Notebook } from "@renderer/schemas/notebook";
 import { onMounted, watch } from "vue";
 import { useTheme } from "vuetify";
-import { Theme } from "@shared/types";
+import { Theme, Locale } from "@shared/types"
 
 import MarkdownCell from "./celltypes/markdown";
 import CodeCell from "./celltypes/code";
@@ -14,13 +14,10 @@ const props = defineProps<{
   id: string;
   initialNotebook: Notebook;
   theme: Theme;
+  locale: Locale;
 }>();
 
 onMounted(() => {
-  // Set the correct theme
-  const theme = useTheme();
-  theme.global.name.value = props.theme || "dark";
-
   // Load the initial notebook
   notebookStore.loadNotebook(props.initialNotebook);
 });
@@ -34,7 +31,7 @@ watch(
 </script>
 
 <template>
-  <PyodideProvider :notebookId="id">
+  <PyodideProvider :notebookId="id" :locale="props.locale">
     <div class="renderer-container">
       <v-expand-transition>
         <v-alert
@@ -55,8 +52,8 @@ watch(
         ></v-alert>
       </v-expand-transition>
       <div v-for="cell in notebookStore.content.cells">
-        <MarkdownCell v-if="cell.cell_type === 'markdown'" :source="cell.source" :metadata="cell.metadata" />
-        <CodeCell v-if="cell.cell_type === 'code'" :cell="cell" :theme="props.theme" />
+        <MarkdownCell v-if="cell.cell_type === 'markdown'" :source="cell.source" :metadata="cell.metadata" :locale="props.locale" />
+        <CodeCell v-if="cell.cell_type === 'code'" :cell="cell" :theme="props.theme" :locale="props.locale"/>
       </div>
     </div>
   </PyodideProvider>

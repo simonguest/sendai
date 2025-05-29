@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch, onMounted } from "vue";
-import { settingsStore, Locale } from "../store/settingsStore";
-import { Theme, THEME_OPTIONS, THEME_LABELS } from "@shared/types";
+import { settingsStore } from "../store/settingsStore";
+import { Theme, THEME_OPTIONS, THEME_LABELS, Locale, LOCALE_OPTIONS, LOCALE_LABELS } from "@shared/types";
 import { useTheme } from "vuetify";
 
 // Get theme instance at setup level
@@ -15,11 +15,10 @@ const themes = THEME_OPTIONS.map(themeOption => ({
   value: themeOption
 }));
 
-const locales = [
-  { title: 'English (US)', value: 'en-US' as Locale },
-  { title: 'Español', value: 'es-ES' as Locale },
-  { title: 'Français', value: 'fr-FR' as Locale }
-];
+const locales = LOCALE_OPTIONS.map(localeOption => ({
+  title: LOCALE_LABELS[localeOption],
+  value: localeOption
+}));
 
 // Initialize theme on component mount
 onMounted(() => {

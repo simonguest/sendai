@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import { Locale } from "@shared/types";
 import { marked } from "marked";
 
-import { settingsStore } from "@renderer/store/settingsStore";
-
-defineProps<{
+const props = defineProps<{
   metadata : any,
   source: string[] | undefined;
+  locale: Locale;
 }>();
 
 const toMarkdown = (source: string[] | undefined) => {
@@ -15,11 +15,10 @@ const toMarkdown = (source: string[] | undefined) => {
 
 const getContent = (source: string[] | undefined, metadata: any) => {
   if (metadata["i18n"]){
-    if (metadata["i18n"][settingsStore.locale]){
-      return metadata["i18n"][settingsStore.locale];
+    if (metadata["i18n"][props.locale]){
+      return metadata["i18n"][props.locale];
     }
   }
-
   return source;
 }
 </script>

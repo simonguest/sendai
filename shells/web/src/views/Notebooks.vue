@@ -3,8 +3,7 @@ import { inject, ref, type Ref, onMounted } from "vue";
 import type { Notebook } from "@renderer/schemas/notebook";
 import Renderer from "@renderer/Renderer.vue";
 
-import { settingsStore, Locale } from "../store/settingsStore";
-import { Theme } from "@shared/types";
+import { settingsStore } from "../store/settingsStore";
 
 // Inject notebook data from App.vue
 const notebook = inject<Ref<Notebook | null>>('notebook') || ref<Notebook | null>(null);
@@ -16,16 +15,6 @@ onMounted(async () => {
     const urlParams = new URLSearchParams(window.location.search);
     // Check if sample parameter exists, otherwise use default
     const notebookFile = urlParams.has('sample') ? urlParams.get('sample') : 'hello_world.ipynb';
-    // Check if theme parameter exists and apply accordingly
-    if (urlParams.has('theme')) {
-      const themeParam = urlParams.get('theme') || 'dark';
-      settingsStore.setTheme(themeParam as Theme);
-    }
-    // Check if locale parameter exists and apply accordingly
-    if (urlParams.has('locale')) {
-      const localeParam = urlParams.get('locale') || 'en-US';
-      settingsStore.setLocale(localeParam as Locale);
-    }
     
     // Fetch the notebook file
     const response = await fetch(`./samples/${notebookFile}`);
@@ -45,6 +34,7 @@ onMounted(async () => {
       :initial-notebook="notebook" 
       :id="notebookId"
       :theme="settingsStore.theme"
+      :locale="settingsStore.locale"
     />
     <div v-else class="loading">
       <v-progress-circular indeterminate color="primary"></v-progress-circular>

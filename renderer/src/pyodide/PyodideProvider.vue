@@ -2,10 +2,10 @@
 import { onMounted, onUnmounted, watch } from "vue";
 
 import { notebookStore } from "@renderer/store/notebookStore";
-import { settingsStore } from "@renderer/store/settingsStore";
 import { pyodideStore } from "@renderer/store/pyodideStore";
+import { Locale } from "@shared/types";
 
-const props = defineProps<{ notebookId: string }>();
+const props = defineProps<{ notebookId: string, locale: Locale }>();
 let worker: Worker;
 
 onMounted(async () => {
@@ -69,7 +69,7 @@ watch(
   newExecutionStatus => {
     if (newExecutionStatus === "queued" && pyodideStore.runningCellId != null) {
       // Grab the source from the notebook
-      const code = notebookStore.getLocalizedSource(pyodideStore.runningCellId, settingsStore.locale);
+      const code = notebookStore.getLocalizedSource(pyodideStore.runningCellId, props.locale);
       worker.postMessage({
         type: "run",
         cellId: pyodideStore.runningCellId,
