@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useTheme } from "vuetify";
 import { settingsStore } from "./store/settingsStore";
+import { NAV_LABELS } from "@shared/types";
 
 const router = useRouter();
 const route = useRoute();
@@ -34,6 +35,9 @@ const activeTab = computed({
 // Initialize theme
 const theme = useTheme();
 
+// Get navigation labels based on current locale
+const navLabels = computed(() => NAV_LABELS[settingsStore.locale]);
+
 onMounted(() => {
   // Set the initial theme from the store
   theme.global.name.value = settingsStore.theme;
@@ -57,17 +61,17 @@ onMounted(() => {
     >
       <v-btn value="0">
         <v-icon>mdi-notebook</v-icon>
-        <span>Notebooks</span>
+        <span>{{ navLabels.notebooks }}</span>
       </v-btn>
 
       <v-btn value="1">
         <v-icon>mdi-school</v-icon>
-        <span>Curriculum</span>
+        <span>{{ navLabels.curriculum }}</span>
       </v-btn>
 
       <v-btn value="2">
         <v-icon>mdi-cog</v-icon>
-        <span>Settings</span>
+        <span>{{ navLabels.settings }}</span>
       </v-btn>
     </v-bottom-navigation>
   </v-app>

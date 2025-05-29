@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from "vue";
+import { ref, watch, onMounted, computed } from "vue";
 import { settingsStore } from "../store/settingsStore";
-import { Theme, THEME_OPTIONS, THEME_LABELS, Locale, LOCALE_OPTIONS, LOCALE_LABELS } from "@shared/types";
+import { Theme, THEME_OPTIONS, THEME_LABELS, Locale, LOCALE_OPTIONS, LOCALE_LABELS, SETTINGS_LABELS } from "@shared/types";
 import { useTheme } from "vuetify";
 
 // Get theme instance at setup level
@@ -10,15 +10,18 @@ const theme = useTheme();
 const currentTheme = ref(settingsStore.theme);
 const currentLocale = ref(settingsStore.locale);
 
-const themes = THEME_OPTIONS.map(themeOption => ({
-  title: THEME_LABELS[themeOption],
+const themes = computed(() => THEME_OPTIONS.map(themeOption => ({
+  title: THEME_LABELS[settingsStore.locale][themeOption],
   value: themeOption
-}));
+})));
 
 const locales = LOCALE_OPTIONS.map(localeOption => ({
   title: LOCALE_LABELS[localeOption],
   value: localeOption
 }));
+
+// Get settings labels based on current locale
+const settingsLabels = computed(() => SETTINGS_LABELS[settingsStore.locale]);
 
 // Initialize theme on component mount
 onMounted(() => {
@@ -46,15 +49,15 @@ const updateLocale = (locale: Locale) => {
     <v-container>
       <v-row>
         <v-col cols="12">
-          <h1 class="text-h4 mb-4">Settings</h1>
+          <h1 class="text-h4 mb-4">{{ settingsLabels.title }}</h1>
           
           <v-card class="mb-4">
-            <v-card-title>Appearance</v-card-title>
+            <v-card-title>{{ settingsLabels.appearance }}</v-card-title>
             <v-card-text>
               <v-select
                 v-model="currentTheme"
                 :items="themes"
-                label="Theme"
+                :label="settingsLabels.theme"
                 item-title="title"
                 item-value="value"
                 @update:model-value="updateTheme"
@@ -63,12 +66,12 @@ const updateLocale = (locale: Locale) => {
           </v-card>
 
           <v-card class="mb-4">
-            <v-card-title>Language</v-card-title>
+            <v-card-title>{{ settingsLabels.language }}</v-card-title>
             <v-card-text>
               <v-select
                 v-model="currentLocale"
                 :items="locales"
-                label="Language"
+                :label="settingsLabels.language"
                 item-title="title"
                 item-value="value"
                 @update:model-value="updateLocale"
@@ -77,13 +80,13 @@ const updateLocale = (locale: Locale) => {
           </v-card>
 
           <v-card>
-            <v-card-title>About</v-card-title>
+            <v-card-title>{{ settingsLabels.about }}</v-card-title>
             <v-card-text>
               <p class="text-body-1">
-                K12 Notebook - Web Shell
+                {{ settingsLabels.appName }}
               </p>
               <p class="text-body-2 text-medium-emphasis">
-                Version 0.1.0
+                {{ settingsLabels.version }} 0.1.0
               </p>
             </v-card-text>
           </v-card>
