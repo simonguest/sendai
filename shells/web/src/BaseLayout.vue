@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useTheme } from "vuetify";
 import { settingsStore } from "./store/settingsStore";
-import { NAV_LABELS } from "@shared/types";
+import { NAV_LABELS, LOCALE_METADATA } from "@shared/types";
 
 const router = useRouter();
 const route = useRoute();
@@ -38,9 +38,24 @@ const theme = useTheme();
 // Get navigation labels based on current locale
 const navLabels = computed(() => NAV_LABELS[settingsStore.locale]);
 
+// Get current text direction
+const currentDirection = computed(() => LOCALE_METADATA[settingsStore.locale].direction);
+
+// Get current locale for HTML lang attribute
+const currentLocale = computed(() => settingsStore.locale);
+
+// Watch for direction and locale changes
+watch([currentDirection, currentLocale], ([direction, locale]) => {
+  document.documentElement.dir = direction;
+  document.documentElement.lang = locale;
+}, { immediate: true });
+
 onMounted(() => {
   // Set the initial theme from the store
   theme.global.name.value = settingsStore.theme;
+  // Set initial direction and locale
+  document.documentElement.dir = currentDirection.value;
+  document.documentElement.lang = currentLocale.value;
 });
 </script>
 
@@ -58,6 +73,7 @@ onMounted(() => {
       v-model="activeTab"
       color="primary"
       grow
+      :class="{ 'rtl-navigation': currentDirection === 'rtl' }"
     >
       <v-btn value="0">
         <v-icon>mdi-notebook</v-icon>
@@ -90,5 +106,15 @@ onMounted(() => {
   left: 0;
   right: 0;
   z-index: 1000;
+}
+
+/* RTL-specific styles */
+.rtl-navigation {
+  direction: rtl;
+}
+
+/* Ensure proper text alignment in RTL */
+.rtl-navigation .v-btn {
+  text-align: center;
 }
 </style>

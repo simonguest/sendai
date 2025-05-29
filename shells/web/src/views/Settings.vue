@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, computed } from "vue";
 import { settingsStore } from "../store/settingsStore";
-import { Theme, THEME_OPTIONS, THEME_LABELS, Locale, LOCALE_OPTIONS, LOCALE_LABELS, SETTINGS_LABELS } from "@shared/types";
+import { Theme, THEME_OPTIONS, THEME_LABELS, Locale, LOCALE_OPTIONS, LOCALE_METADATA, SETTINGS_LABELS } from "@shared/types";
 import { useTheme } from "vuetify";
 
 // Get theme instance at setup level
@@ -16,7 +16,7 @@ const themes = computed(() => THEME_OPTIONS.map(themeOption => ({
 })));
 
 const locales = LOCALE_OPTIONS.map(localeOption => ({
-  title: LOCALE_LABELS[localeOption],
+  title: LOCALE_METADATA[localeOption].name,
   value: localeOption
 }));
 
@@ -49,7 +49,7 @@ const updateLocale = (locale: Locale) => {
     <v-container>
       <v-row>
         <v-col cols="12">
-          <h1 class="text-h4 mb-4">{{ settingsLabels.title }}</h1>
+          <h1 class="text-h4 mb-4 settings-title">{{ settingsLabels.title }}</h1>
           
           <v-card class="mb-4">
             <v-card-title>{{ settingsLabels.appearance }}</v-card-title>
@@ -101,5 +101,14 @@ const updateLocale = (locale: Locale) => {
   height: 100%;
   width: 100%;
   padding: 16px;
+}
+
+/* RTL-aware title alignment */
+html[dir="rtl"] .settings-title {
+  text-align: right;
+}
+
+html[dir="ltr"] .settings-title {
+  text-align: left;
 }
 </style>
