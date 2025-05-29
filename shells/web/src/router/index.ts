@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 import NotebooksView from '../views/Notebooks.vue'
 import CurriculumView from '../views/Curriculum.vue'
 import SettingsView from '../views/Settings.vue'
@@ -27,7 +27,7 @@ const routes = [
 
 const router = createRouter({
   // @ts-ignore
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHashHistory(import.meta.env.BASE_URL),
   routes
 })
 

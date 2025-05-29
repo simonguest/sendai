@@ -11,6 +11,7 @@
     
     "build:renderer": "npm run build --workspace=renderer",
     "build:web": "npm run build --workspace=shells/web",
+    "build:gh-pages": "npm run gh-pages --workspace=shells/web",
 
     "clean:renderer": "npm run clean --workspace=renderer",
     "clean:web": "npm run clean --workspace=shells/web",

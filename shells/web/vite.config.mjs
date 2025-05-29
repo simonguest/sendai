@@ -4,7 +4,7 @@ import vuetify from "vite-plugin-vuetify";
 import { resolve } from "path";
 
 export default defineConfig({
-  base: process.env.NODE_ENV === 'production' ? '/k12nb/' : '/',
+  base: "./",
   plugins: [
     vue(),
     vuetify({ autoImport: true }),

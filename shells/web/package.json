@@ -6,6 +6,7 @@
     "sync-assets": "cp -r ../../renderer/public/* ./public/",
     "dev": "npm run sync-assets && vite",
     "build": "vite build",
+    "gh-pages": "vite build --base=/k12nb/",
     "clean": "rm -rf ./dist",
     "preview": "vite preview"
   },
