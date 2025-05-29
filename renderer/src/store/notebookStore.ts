@@ -19,26 +19,46 @@ export const notebookStore = reactive({
   getLocalizedSource(cellId: string, locale: string) : string[] | undefined {
     const cell = this.findCell(cellId);
     if (!cell) return undefined;
-    if (!cell.source) return undefined;
 
-    return cell.source
-      .map(line => {
-        if (line === "__TEMPLATE__") {
-          if (cell.metadata["__TEMPLATE__"][locale]) {
-            return cell.metadata["__TEMPLATE__"][locale];
-          } else {
-            // locale not found in template. Return default value instead.
-            if (cell.metadata["__TEMPLATE__"]["default"]) {
-              return cell.metadata["__TEMPLATE__"]["default"];
-            } else {
-              return "";
-            }
-          }
-        } else {
-          return line;
+    let source = cell.source;
+    if (cell.metadata["i18n"]){
+      if (cell.metadata["i18n"][locale]){
+        source = cell.metadata["i18n"][locale];
+      }
+    }
+
+    if (!source) return undefined;
+
+    // Get globals from notebook metadata
+    const globals = this.content.metadata?.globals;
+    if (!globals) {
+      // No globals defined, return original source
+      return source;
+    }
+
+    // Process each line of source code
+    const localizedSource = source.map(line => {
+      // Replace jinja templates ({{VARIABLE}}) with localized values
+      return line.replace(/\{\{\s*(\w+)\s*\}\}/g, (match, variableName) => {
+        const globalVar = globals[variableName];
+        if (!globalVar) {
+          // Variable not found in globals, return original
+          return match;
         }
-      })
-      .flat();
+        
+        // Get localized value, fallback to default if locale not found
+        const localizedValue = globalVar[locale] || globalVar.default;
+        if (localizedValue === undefined) {
+          // No value found, return original
+          return match;
+        }
+        
+        // Return the value wrapped in quotes (assuming string values)
+        return `${localizedValue}`;
+      });
+    });
+
+    return localizedSource;
   },
   setSource(cellId: string, source: string[]) {
     const cell = this.findCell(cellId);
