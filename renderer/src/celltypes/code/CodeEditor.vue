@@ -5,21 +5,23 @@ import { EditorView, basicSetup } from "codemirror";
 import { python } from "@codemirror/lang-python";
 
 import { notebookStore } from "@renderer/store/notebookStore";
-import { settingsStore } from "@renderer/store/settingsStore";
 
 import { basicLight } from "./themes/basicLight";
 import { materialDark } from "./themes/materialDark";
+
+import { Theme } from "@shared/types";
 
 const props = defineProps<{
   source: string[] | undefined;
   metadata: any;
   id: string;
+  theme: Theme;
 }>();
 
 onMounted(() => {
   // Figure out the right theme to use
   let theme = basicLight; // default
-  switch (settingsStore.theme){
+  switch (props.theme){
     case "dark":
       theme = materialDark;
       break;

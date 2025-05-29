@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
+import { useTheme } from "vuetify";
+import { settingsStore } from "./store/settingsStore";
 
 const router = useRouter();
 const route = useRoute();
@@ -27,6 +29,14 @@ const activeTab = computed({
       router.push(targetRoute);
     }
   }
+});
+
+// Initialize theme
+const theme = useTheme();
+
+onMounted(() => {
+  // Set the initial theme from the store
+  theme.global.name.value = settingsStore.theme;
 });
 </script>
 

@@ -3,7 +3,8 @@ import { inject, ref, type Ref, onMounted } from "vue";
 import type { Notebook } from "@renderer/schemas/notebook";
 import Renderer from "@renderer/Renderer.vue";
 
-import { settingsStore, Theme, Locale } from "@renderer/store/settingsStore";
+import { settingsStore, Locale } from "../store/settingsStore";
+import { Theme } from "@shared/types";
 
 // Inject notebook data from App.vue
 const notebook = inject<Ref<Notebook | null>>('notebook') || ref<Notebook | null>(null);
@@ -43,6 +44,7 @@ onMounted(async () => {
       v-if="notebook" 
       :initial-notebook="notebook" 
       :id="notebookId"
+      :theme="settingsStore.theme"
     />
     <div v-else class="loading">
       <v-progress-circular indeterminate color="primary"></v-progress-circular>

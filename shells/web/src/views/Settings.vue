@@ -1,14 +1,19 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { settingsStore, Theme, Locale } from "@renderer/store/settingsStore";
+import { ref, watch, onMounted } from "vue";
+import { settingsStore, Locale } from "../store/settingsStore";
+import { Theme, THEME_OPTIONS, THEME_LABELS } from "@shared/types";
+import { useTheme } from "vuetify";
+
+// Get theme instance at setup level
+const theme = useTheme();
 
 const currentTheme = ref(settingsStore.theme);
 const currentLocale = ref(settingsStore.locale);
 
-const themes = [
-  { title: 'Light', value: 'light' as Theme },
-  { title: 'Dark', value: 'dark' as Theme }
-];
+const themes = THEME_OPTIONS.map(themeOption => ({
+  title: THEME_LABELS[themeOption],
+  value: themeOption
+}));
 
 const locales = [
   { title: 'English (US)', value: 'en-US' as Locale },
@@ -16,9 +21,19 @@ const locales = [
   { title: 'Français', value: 'fr-FR' as Locale }
 ];
 
-const updateTheme = (theme: Theme) => {
-  settingsStore.setTheme(theme);
-  currentTheme.value = theme;
+// Initialize theme on component mount
+onMounted(() => {
+  theme.global.name.value = settingsStore.theme;
+});
+
+// Watch for theme changes and update Vuetify
+watch(currentTheme, (newTheme) => {
+  theme.global.name.value = newTheme;
+});
+
+const updateTheme = (newTheme: Theme) => {
+  settingsStore.setTheme(newTheme);
+  currentTheme.value = newTheme;
 };
 
 const updateLocale = (locale: Locale) => {
