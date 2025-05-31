@@ -7,6 +7,10 @@ import BaseLayout from "./BaseLayout.vue";
 </template>
 
 <style>
+
+@import "./styles.css";
+@import "./icons.min.css";
+
 /* Global RTL support styles */
 html[dir="rtl"] {
   direction: rtl;
@@ -71,4 +75,5 @@ html[dir="ltr"] textarea {
 * {
   transition: text-align 0.3s ease, direction 0.3s ease;
 }
+
 </style>

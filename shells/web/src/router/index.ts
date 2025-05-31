@@ -1,5 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import NotebooksView from '../views/Notebooks.vue'
+import NotebookView from '../views/Notebook.vue'
+import NotebookViewerView from '../views/NotebookViewer.vue'
 import CurriculumView from '../views/Curriculum.vue'
 import SettingsView from '../views/Settings.vue'
 
@@ -11,7 +12,12 @@ const routes = [
   {
     path: '/notebooks',
     name: 'notebooks',
-    component: NotebooksView
+    component: NotebookView
+  },
+  {
+    path: '/notebooks/:id',
+    name: 'notebook-viewer',
+    component: NotebookViewerView
   },
   {
     path: '/curriculum',

@@ -21,6 +21,64 @@ export const THEME_LABELS: Record<Locale, Record<Theme, string>> = {
   }
 } as const;
 
+// Notebook page translations
+export const NOTEBOOK_LABELS: Record<Locale, {
+  title: string;
+  addNotebook: string;
+  blank: string;
+  fromTemplate: string;
+  importNotebook: string;
+  delete: string;
+  lastEdited: string;
+  back: string;
+  notebookViewer: string;
+}> = {
+  'en-US': {
+    title: 'Notebooks',
+    addNotebook: 'Add notebook',
+    blank: 'Blank',
+    fromTemplate: 'From template',
+    importNotebook: 'Import notebook',
+    delete: 'Delete',
+    lastEdited: 'Last edited',
+    back: 'Back',
+    notebookViewer: 'Notebook Viewer'
+  },
+  'ja-JP': {
+    title: 'ノートブック',
+    addNotebook: 'ノートブックを追加',
+    blank: '空白',
+    fromTemplate: 'テンプレートから',
+    importNotebook: 'ノートブックをインポート',
+    delete: '削除',
+    lastEdited: '最終編集',
+    back: '戻る',
+    notebookViewer: 'ノートブックビューア'
+  },
+  'hi-IN': {
+    title: 'नोटबुक',
+    addNotebook: 'नोटबुक जोड़ें',
+    blank: 'खाली',
+    fromTemplate: 'टेम्प्लेट से',
+    importNotebook: 'नोटबुक आयात करें',
+    delete: 'हटाएं',
+    lastEdited: 'अंतिम संपादन',
+    back: 'वापस',
+    notebookViewer: 'नोटबुक व्यूअर'
+  },
+  'fa-IR': {
+    title: 'دفترچه‌ها',
+    addNotebook: 'افزودن دفترچه',
+    blank: 'خالی',
+    fromTemplate: 'از قالب',
+    importNotebook: 'وارد کردن دفترچه',
+    delete: 'حذف',
+    lastEdited: 'آخرین ویرایش',
+    back: 'بازگشت',
+    notebookViewer: 'نمایشگر دفترچه'
+  }
+} as const;
+
 // Text direction types
 export type TextDirection = 'ltr' | 'rtl';
 
