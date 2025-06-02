@@ -4,7 +4,7 @@ import { settingsStore } from "../store/settingsStore";
 import { NOTEBOOK_LABELS } from "@shared/types";
 import NotebookCard from "../components/NotebookCard.vue";
 
-import { listNotebooks, loadBlankNotebook, saveNotebook, deleteNotebook as deleteNotebookFromStorage, type NotebookInfo } from "../storage/notebookStorage";
+import { listNotebooks, loadBlankNotebook, saveNotebook, deleteNotebook as deleteNotebookFromStorage, importNotebookFromFile, type NotebookInfo } from "../storage/notebookStorage";
 
 // Get notebook labels based on current locale
 const notebookLabels = computed(() => NOTEBOOK_LABELS[settingsStore.locale]);
@@ -40,7 +40,7 @@ const deleteNotebook = async (notebookId: string) => {
   }
 };
 
-// Add notebook menu handlers (placeholders)
+// Add notebook menu handlers
 const createBlankNotebook = async () => {
   try {
     console.log("Create blank notebook");
@@ -59,12 +59,46 @@ const createBlankNotebook = async () => {
   }
 };
 
-const createFromTemplate = () => {
-  console.log("Create from template");
-};
-
-const importNotebook = () => {
-  console.log("Import notebook");
+const importNotebook = async () => {
+  try {
+    // Create file input element
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.ipynb';
+    input.style.display = 'none';
+    
+    // Handle file selection
+    input.onchange = async (event) => {
+      const file = (event.target as HTMLInputElement).files?.[0];
+      if (!file) {
+        console.log('No file selected');
+        return;
+      }
+      
+      try {
+        // Use the storage function to import the notebook
+        const id = await importNotebookFromFile(file);        
+        console.log('Notebook imported successfully:', id);
+        
+        // Refresh the notebooks list
+        const notebookList = await listNotebooks();
+        notebooks.value = notebookList;
+        
+      } catch (importError) {
+        console.error('Failed to import notebook:', importError);
+        alert(`Failed to import notebook: ${importError instanceof Error ? importError.message : 'Unknown error'}`);
+      }
+    };
+    
+    // Trigger file selection
+    document.body.appendChild(input);
+    input.click();
+    document.body.removeChild(input);
+    
+  } catch (error) {
+    console.error('Failed to import notebook:', error);
+    alert('Failed to import notebook. Please try again.');
+  }
 };
 </script>
 
@@ -89,9 +123,6 @@ const importNotebook = () => {
           <v-list>
             <v-list-item @click="createBlankNotebook">
               <v-list-item-title>{{ notebookLabels.blank }}</v-list-item-title>
-            </v-list-item>
-            <v-list-item @click="createFromTemplate">
-              <v-list-item-title>{{ notebookLabels.fromTemplate }}</v-list-item-title>
             </v-list-item>
             <v-list-item @click="importNotebook">
               <v-list-item-title>{{ notebookLabels.importNotebook }}</v-list-item-title>

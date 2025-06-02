@@ -299,3 +299,67 @@ export const loadSampleNotebook = async (samplePath: string): Promise<Notebook> 
     );
   }
 };
+
+export const importNotebookFromFile = async (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    
+    reader.onload = async (e) => {
+      try {
+        const content = e.target?.result as string;
+        const notebook: Notebook = JSON.parse(content);
+        
+        // Validate notebook structure
+        if (!notebook.cells || !Array.isArray(notebook.cells)) {
+          throw new Error('Invalid notebook format: missing or invalid cells array');
+        }
+        
+        // Set default values if missing
+        if (!notebook.metadata) {
+          notebook.metadata = {};
+        }
+        
+        if (!notebook.nbformat) {
+          notebook.nbformat = 4;
+        }
+        
+        if (!notebook.nbformat_minor) {
+          notebook.nbformat_minor = 2;
+        }
+        
+        // Ensure all cells have IDs and required properties
+        notebook.cells.forEach((cell: Cell) => {
+          if (!cell.id) {
+            cell.id = uuidv4();
+          }
+          if (!cell.metadata) {
+            cell.metadata = {};
+          }
+          if (!cell.source) {
+            cell.source = [];
+          }
+        });
+        
+        // Set a default title if none exists
+        if (!notebook.metadata.title) {
+          notebook.metadata.title = file.name.replace('.ipynb', '') || 'Imported Notebook';
+        }
+        
+        // Save notebook to storage
+        const id = uuidv4();
+        await saveNotebook(id, notebook);
+        
+        resolve(id);
+        
+      } catch (parseError) {
+        reject(new Error(`Failed to parse notebook file: ${parseError instanceof Error ? parseError.message : String(parseError)}`));
+      }
+    };
+    
+    reader.onerror = () => {
+      reject(new Error('Failed to read the selected file'));
+    };
+    
+    reader.readAsText(file);
+  });
+};
