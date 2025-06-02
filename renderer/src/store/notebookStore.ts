@@ -1,6 +1,6 @@
 import { reactive } from "vue";
 import { v4 as uuidv4 } from "uuid";
-import type { Notebook, Output } from "@renderer/schemas/notebook";
+import type { Notebook, Output } from "@shared/schemas/notebook";
 
 export type OutputType = "result" | "stdout" | "error";
 

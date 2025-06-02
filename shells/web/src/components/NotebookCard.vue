@@ -3,16 +3,10 @@ import { computed } from "vue";
 import { useRouter } from "vue-router";
 import { settingsStore } from "../store/settingsStore";
 import { NOTEBOOK_LABELS } from "@shared/types";
-
-interface NotebookData {
-  id: string;
-  title: string;
-  lastEdited: Date;
-  icon: string;
-}
+import type { NotebookInfo } from "../storage/notebookStorage";
 
 interface Props {
-  notebook: NotebookData;
+  notebook: NotebookInfo;
 }
 
 interface Emits {
@@ -83,7 +77,7 @@ const deleteNotebook = () => {
       <!-- Notebook Content -->
       <div class="d-flex align-center">
         <v-icon
-          :icon="notebook.icon"
+          icon="mdi-notebook-outline"
           size="large"
           color="primary"
           class="me-3"
@@ -91,7 +85,7 @@ const deleteNotebook = () => {
         <div class="flex-grow-1">
           <h3 class="text-h6 mb-1">{{ notebook.title }}</h3>
           <p class="text-caption text-medium-emphasis mb-0">
-            {{ notebookLabels.lastEdited }}: {{ formatDate(notebook.lastEdited) }}
+            {{ notebookLabels.lastEdited }}: {{ formatDate(notebook.lastModified || notebook.created) }}
           </p>
         </div>
       </div>

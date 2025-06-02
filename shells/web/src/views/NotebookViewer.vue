@@ -1,8 +1,11 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { settingsStore } from "../store/settingsStore";
 import { NOTEBOOK_LABELS } from "@shared/types";
+import { getNotebook } from "../storage/notebookStorage";
+import type { Notebook } from "@shared/schemas/notebook";
+import Renderer from "@renderer/Renderer.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -12,6 +15,25 @@ const notebookLabels = computed(() => NOTEBOOK_LABELS[settingsStore.locale]);
 
 // Get notebook ID from route params
 const notebookId = computed(() => route.params.id as string);
+
+// Reactive state for notebook data
+const notebook = ref<Notebook | null>(null);
+const loading = ref(true);
+const error = ref<string | null>(null);
+
+// Load notebook data when component mounts
+onMounted(async () => {
+  try {
+    loading.value = true;
+    error.value = null;
+    notebook.value = await getNotebook(notebookId.value);
+  } catch (err) {
+    console.error('Failed to load notebook:', err);
+    error.value = err instanceof Error ? err.message : 'Failed to load notebook';
+  } finally {
+    loading.value = false;
+  }
+});
 
 // Navigate back to notebooks index
 const goBack = () => {
@@ -30,20 +52,35 @@ const goBack = () => {
           @click="goBack"
           class="me-3"
         ></v-btn>
-        <h1 class="text-h4">{{ notebookLabels.notebookViewer }}</h1>
+        <h1 class="text-h4">{{ notebook?.metadata?.title || "Untitled Notebook" }}</h1>
       </div>
 
-      <!-- Placeholder content -->
-      <v-card class="pa-6">
+      <!-- Notebook Renderer -->
+      <Renderer 
+        v-if="notebook && !loading && !error" 
+        :initial-notebook="notebook" 
+        :id="notebookId"
+        :theme="settingsStore.theme"
+        :locale="settingsStore.locale"
+      />
+      
+      <!-- Loading state -->
+      <div v-else-if="loading" class="loading">
+        <v-progress-circular indeterminate color="primary"></v-progress-circular>
+        <p>Loading notebook...</p>
+      </div>
+      
+      <!-- Error state -->
+      <v-card v-else-if="error" class="pa-6">
         <div class="text-center">
-          <v-icon icon="mdi-notebook" size="64" color="primary" class="mb-4"></v-icon>
-          <h2 class="text-h5 mb-2">Notebook goes here.</h2>
+          <v-icon icon="mdi-alert-circle" size="64" color="error" class="mb-4"></v-icon>
+          <h2 class="text-h5 mb-2">Failed to load notebook</h2>
           <p class="text-body-1 text-medium-emphasis mb-4">
-            Notebook ID: {{ notebookId }}
+            {{ error }}
           </p>
-          <p class="text-body-2 text-medium-emphasis">
-            This is a placeholder for the notebook viewer. The actual notebook content will be integrated here in the future.
-          </p>
+          <v-btn color="primary" @click="goBack">
+            Back to Notebooks
+          </v-btn>
         </div>
       </v-card>
     </v-container>
@@ -54,6 +91,15 @@ const goBack = () => {
 .notebook-viewer {
   height: 100%;
   width: 100%;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 50vh;
+  gap: 16px;
 }
 
 /* RTL-aware back button positioning */

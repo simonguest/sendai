@@ -1,57 +1,62 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { settingsStore } from "../store/settingsStore";
 import { NOTEBOOK_LABELS } from "@shared/types";
 import NotebookCard from "../components/NotebookCard.vue";
 
+import { listNotebooks, loadBlankNotebook, saveNotebook, deleteNotebook as deleteNotebookFromStorage, type NotebookInfo } from "../storage/notebookStorage";
+
 // Get notebook labels based on current locale
 const notebookLabels = computed(() => NOTEBOOK_LABELS[settingsStore.locale]);
 
-// Sample notebook data with UUIDs
-const notebooks = ref([
-  {
-    id: crypto.randomUUID(),
-    title: "Math Basics",
-    lastEdited: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-    icon: "mdi-calculator"
-  },
-  {
-    id: crypto.randomUUID(),
-    title: "Python Introduction",
-    lastEdited: new Date(Date.now() - 5 * 60 * 60 * 1000), // 5 hours ago
-    icon: "mdi-language-python"
-  },
-  {
-    id: crypto.randomUUID(),
-    title: "Data Visualization",
-    lastEdited: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago
-    icon: "mdi-chart-line"
-  },
-  {
-    id: crypto.randomUUID(),
-    title: "Science Experiments",
-    lastEdited: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
-    icon: "mdi-flask"
-  },
-  {
-    id: crypto.randomUUID(),
-    title: "Creative Writing",
-    lastEdited: new Date(Date.now() - 6 * 60 * 60 * 1000), // 6 hours ago
-    icon: "mdi-pencil"
+// Initialize notebooks as empty array
+const notebooks = ref<NotebookInfo[]>([]);
+
+onMounted(async () => {
+  try {
+    const notebookList = await listNotebooks();
+    notebooks.value = notebookList;
+  } catch (error) {
+    console.error('Failed to load notebooks:', error);
   }
-]);
+});
 
 // Delete notebook handler
-const deleteNotebook = (notebookId: string) => {
-  const index = notebooks.value.findIndex(nb => nb.id === notebookId);
-  if (index > -1) {
-    notebooks.value.splice(index, 1);
+const deleteNotebook = async (notebookId: string) => {
+  try {
+    // Delete from storage first
+    await deleteNotebookFromStorage(notebookId);
+    
+    // Only remove from UI if storage deletion succeeded
+    const index = notebooks.value.findIndex(nb => nb.id === notebookId);
+    if (index > -1) {
+      notebooks.value.splice(index, 1);
+    }
+    
+    console.log('Notebook deleted successfully:', notebookId);
+  } catch (error) {
+    console.error('Failed to delete notebook:', error);
+    // Note: Could add user notification here in the future
   }
 };
 
 // Add notebook menu handlers (placeholders)
-const createBlankNotebook = () => {
-  console.log("Create blank notebook");
+const createBlankNotebook = async () => {
+  try {
+    console.log("Create blank notebook");
+    const notebook = await loadBlankNotebook();
+    const id = crypto.randomUUID();
+    await saveNotebook(id, notebook);
+    console.log('Created notebook with id:', id);
+    
+    // Refresh the notebooks list
+    const notebookList = await listNotebooks();
+    notebooks.value = notebookList;
+    
+    //TODO: redirect the user to the new route
+  } catch (error) {
+    console.error('Failed to create blank notebook:', error);
+  }
 };
 
 const createFromTemplate = () => {

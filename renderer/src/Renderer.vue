@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { notebookStore } from "@renderer/store/notebookStore";
-import type { Notebook } from "@renderer/schemas/notebook";
+import type { Notebook } from "@shared/schemas/notebook";
 import { onMounted, watch } from "vue";
 import { useTheme } from "vuetify";
 import { Theme, Locale } from "@shared/types"
