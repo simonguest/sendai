@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed, ref, onMounted } from "vue";
+import { computed, ref, onMounted, onUnmounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { settingsStore } from "../store/settingsStore";
 import { NOTEBOOK_LABELS } from "@shared/types";
 import { getNotebook } from "../storage/notebookStorage";
+import { useNotebookAutoSave } from "../composables/useNotebookAutoSave";
 import type { Notebook } from "@shared/schemas/notebook";
 import Renderer from "@renderer/Renderer.vue";
 
@@ -20,6 +21,9 @@ const notebookId = computed(() => route.params.id as string);
 const notebook = ref<Notebook | null>(null);
 const loading = ref(true);
 const error = ref<string | null>(null);
+
+// Auto-save functionality
+const { saveStatus, lastSaved, stopWatcher } = useNotebookAutoSave(notebookId.value);
 
 // Load notebook data when component mounts
 onMounted(async () => {
@@ -39,20 +43,43 @@ onMounted(async () => {
 const goBack = () => {
   router.push('/notebooks');
 };
+
+onUnmounted(() => {
+  // Clean up watcher when component unmounts
+  stopWatcher();
+});
 </script>
 
 <template>
   <div class="notebook-viewer">
     <v-container fluid class="pa-4">
-      <!-- Header with back button -->
-      <div class="d-flex align-center mb-6">
-        <v-btn
-          icon="mdi-arrow-left"
-          variant="text"
-          @click="goBack"
-          class="me-3"
-        ></v-btn>
-        <h1 class="text-h4">{{ notebook?.metadata?.title || "Untitled Notebook" }}</h1>
+      <!-- Header with back button and save status -->
+      <div class="d-flex align-center justify-space-between mb-6">
+        <div class="d-flex align-center">
+          <v-btn
+            icon="mdi-arrow-left"
+            variant="text"
+            @click="goBack"
+            class="me-3"
+          ></v-btn>
+          <h1 class="text-h4">{{ notebook?.metadata?.title || "Untitled Notebook" }}</h1>
+        </div>
+        
+        <!-- Save status indicator -->
+        <v-chip 
+          v-if="saveStatus !== 'idle'"
+          :color="saveStatus === 'saved' ? 'success' : saveStatus === 'saving' ? 'info' : 'error'"
+          size="small"
+          variant="tonal"
+        >
+          <v-icon 
+            :icon="saveStatus === 'saved' ? 'mdi-check' : saveStatus === 'saving' ? 'mdi-loading' : 'mdi-alert'"
+            :class="{ 'mdi-spin': saveStatus === 'saving' }"
+            size="small"
+            class="me-1"
+          ></v-icon>
+          {{ saveStatus === 'saved' ? 'Saved' : saveStatus === 'saving' ? 'Saving...' : 'Save Error' }}
+        </v-chip>
       </div>
 
       <!-- Notebook Renderer -->
@@ -100,6 +127,15 @@ const goBack = () => {
   justify-content: center;
   height: 50vh;
   gap: 16px;
+}
+
+.mdi-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 /* RTL-aware back button positioning */
