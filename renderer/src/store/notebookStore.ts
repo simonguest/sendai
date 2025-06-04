@@ -1,14 +1,15 @@
 import { reactive } from "vue";
 import { v4 as uuidv4 } from "uuid";
-import type { Notebook, Output } from "@shared/schemas/notebook";
+import { Notebook, Output, NOTEBOOK_SKELETON } from "@shared/schemas/notebook";
 
 export type OutputType = "result" | "stdout" | "error";
 
 export const notebookStore = reactive({
   content: {} as Notebook,
   updated: null as Number | null,
-  clearUpdated() {
+  clear() {
     this.updated = null;
+    this.content = NOTEBOOK_SKELETON;
   },
   findCell(cellId: string) {
     if (!this.content.cells) {
@@ -77,6 +78,7 @@ export const notebookStore = reactive({
     const cell = this.findCell(cellId);
     if (cell) {
       cell.outputs = [];
+      this.updated = Date.now();
     }
   },
   getOutputTypes(cellId: string) {
@@ -120,6 +122,7 @@ export const notebookStore = reactive({
           text: [stdout],
         });
       }
+      this.updated = Date.now();
     }
   },
   getStdout(cellId: string) {

@@ -47,7 +47,7 @@ const goBack = () => {
 
 onUnmounted(() => {
   // Stop updates
-  notebookStore.clearUpdated();
+  notebookStore.clear();
   // Clean up watcher when component unmounts
   stopWatcher();
 });

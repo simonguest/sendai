@@ -101,3 +101,10 @@ export interface Notebook {
   nbformat: number;
   nbformat_minor: number;
 }
+
+export const NOTEBOOK_SKELETON : Notebook = {
+  cells: [],
+  metadata: {},
+  nbformat: 4,
+  nbformat_minor: 2
+}
