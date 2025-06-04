@@ -19,12 +19,14 @@ export function useNotebookAutoSave(notebookId: string) {
     
     saveTimeout = setTimeout(async () => {
       try {
+        console.log(`Auto-Save: Saving Notebook ${notebookId}`);
         saveStatus.value = 'saving'
         // Convert reactive object to plain object for IndexedDB
         const plainNotebook = JSON.parse(JSON.stringify(notebookStore.content))
         await saveNotebook(notebookId, plainNotebook)
         saveStatus.value = 'saved'
         lastSaved.value = new Date()
+        console.log(`Auto-Save: Saved Notebook ${notebookId}`);
         
         // Reset to idle after showing "saved" for a moment
         setTimeout(() => {
@@ -33,7 +35,7 @@ export function useNotebookAutoSave(notebookId: string) {
           }
         }, SAVE_STATUS_DISPLAY_MS)
       } catch (error) {
-        console.error('Auto-save failed:', error)
+        console.error('Auto-Save: Failed:', error)
         saveStatus.value = 'error'
       }
     }, AUTO_SAVE_DEBOUNCE_MS)
