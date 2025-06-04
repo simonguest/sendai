@@ -65,7 +65,7 @@ onUnmounted(() => {
             @click="goBack"
             class="me-3"
           ></v-btn>
-          <h1 class="text-h4">{{ notebook?.metadata?.title || "Untitled Notebook" }}</h1>
+          <h1 class="text-h4">{{ notebook?.metadata?.title || notebookLabels.untitledNotebook }}</h1>
         </div>
         
         <!-- Save status indicator -->
@@ -81,7 +81,7 @@ onUnmounted(() => {
             size="small"
             class="me-1"
           ></v-icon>
-          {{ saveStatus === 'saved' ? 'Saved' : saveStatus === 'saving' ? 'Saving...' : 'Save Error' }}
+          {{ saveStatus === 'saved' ? notebookLabels.saved : saveStatus === 'saving' ? notebookLabels.saving : notebookLabels.saveError }}
         </v-chip>
       </div>
 
@@ -97,19 +97,19 @@ onUnmounted(() => {
       <!-- Loading state -->
       <div v-else-if="loading" class="loading">
         <v-progress-circular indeterminate color="primary"></v-progress-circular>
-        <p>Loading notebook...</p>
+        <p>{{ notebookLabels.loadingNotebook }}</p>
       </div>
       
       <!-- Error state -->
       <v-card v-else-if="error" class="pa-6">
         <div class="text-center">
           <v-icon icon="mdi-alert-circle" size="64" color="error" class="mb-4"></v-icon>
-          <h2 class="text-h5 mb-2">Failed to load notebook</h2>
+          <h2 class="text-h5 mb-2">{{ notebookLabels.failedToLoad }}</h2>
           <p class="text-body-1 text-medium-emphasis mb-4">
             {{ error }}
           </p>
           <v-btn color="primary" @click="goBack">
-            Back to Notebooks
+            {{ notebookLabels.backToNotebooks }}
           </v-btn>
         </div>
       </v-card>

@@ -27,12 +27,14 @@ const formatDate = (date: Date) => {
   const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
   
   if (diffInHours < 1) {
-    return "Just now";
+    return notebookLabels.value.justNow;
   } else if (diffInHours < 24) {
-    return `${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`;
+    const hourLabel = diffInHours === 1 ? notebookLabels.value.hourAgo : notebookLabels.value.hoursAgo;
+    return `${diffInHours} ${hourLabel}`;
   } else {
     const diffInDays = Math.floor(diffInHours / 24);
-    return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`;
+    const dayLabel = diffInDays === 1 ? notebookLabels.value.dayAgo : notebookLabels.value.daysAgo;
+    return `${diffInDays} ${dayLabel}`;
   }
 };
 
