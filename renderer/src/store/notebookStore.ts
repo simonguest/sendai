@@ -6,6 +6,10 @@ export type OutputType = "result" | "stdout" | "error";
 
 export const notebookStore = reactive({
   content: {} as Notebook,
+  updated: null as Number | null,
+  clearUpdated() {
+    this.updated = null;
+  },
   findCell(cellId: string) {
     if (!this.content.cells) {
       return null;
@@ -66,6 +70,7 @@ export const notebookStore = reactive({
       // Add \n chars to the end of each source line
       source = source.map(line => line + "\n");
       cell.source = source;
+      this.updated = Date.now();
     }
   },
   clearOutputs(cellId: string) {
@@ -153,6 +158,7 @@ export const notebookStore = reactive({
           data: result,
         });
       }
+      this.updated = Date.now();
     }
   },
   getResult(cellId: string) {
@@ -178,6 +184,7 @@ export const notebookStore = reactive({
         output_type: "error",
         traceback: tracebackArray,
       });
+      this.updated = Date.now();
     }
   },
   getError(cellId: string) {

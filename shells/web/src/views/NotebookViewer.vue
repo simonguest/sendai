@@ -2,6 +2,7 @@
 import { computed, ref, onMounted, onUnmounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { settingsStore } from "../store/settingsStore";
+import { notebookStore } from "@renderer/store/notebookStore";
 import { NOTEBOOK_LABELS } from "@shared/types";
 import { getNotebook } from "../storage/notebookStorage";
 import { useNotebookAutoSave } from "../composables/useNotebookAutoSave";
@@ -45,6 +46,8 @@ const goBack = () => {
 };
 
 onUnmounted(() => {
+  // Stop updates
+  notebookStore.clearUpdated();
   // Clean up watcher when component unmounts
   stopWatcher();
 });

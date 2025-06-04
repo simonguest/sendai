@@ -36,7 +36,7 @@ onMounted(() => {
       EditorView.lineWrapping,
       EditorView.updateListener.of(update => {
         if (update.docChanged) {
-          const newSource = update.state.doc.toString();
+          const newSource = update.state.doc.toString().trim();
           notebookStore.setSource(
             props.id,
             newSource.includes("\n") ? newSource.split("\n") : [newSource]
