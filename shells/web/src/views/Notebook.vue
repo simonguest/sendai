@@ -162,6 +162,7 @@ const importNotebook = async () => {
 .notebook-index {
   height: 100%;
   width: 100%;
+  padding: 16px;
 }
 
 /* RTL-aware title alignment */
