@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { notebookStore } from "@renderer/store/notebookStore";
-import type { Notebook } from "@renderer/schemas/notebook";
-import { onMounted, watch } from "vue";
+import type { Notebook } from "@shared/schemas/notebook";
+import { onMounted, watch, computed } from "vue";
 import { useTheme } from "vuetify";
-import { Theme, Locale } from "@shared/types"
+import { Theme, Locale, RENDERER_LABELS } from "@shared/types"
 
 import MarkdownCell from "./celltypes/markdown";
 import CodeCell from "./celltypes/code";
@@ -16,6 +16,9 @@ const props = defineProps<{
   theme: Theme;
   locale: Locale;
 }>();
+
+// Get renderer labels based on current locale
+const rendererLabels = computed(() => RENDERER_LABELS[props.locale]);
 
 onMounted(() => {
   // Load the initial notebook
@@ -36,7 +39,7 @@ watch(
       <v-expand-transition>
         <v-alert
           v-if="pyodideStore.workerStatus == 'initializing'"
-          text="The notebook is starting up..."
+          :text="rendererLabels.notebookStarting"
           type="info"
           variant="tonal"
           density="compact"
@@ -45,7 +48,7 @@ watch(
       <v-expand-transition>
         <v-alert
           v-if="pyodideStore.workerStatus == 'error'"
-          :text="`The notebook could not be started because of an error: ${pyodideStore.fatalErrorTrace}`"
+          :text="`${rendererLabels.notebookStartError} ${pyodideStore.fatalErrorTrace}`"
           type="error"
           variant="tonal"
           density="compact"

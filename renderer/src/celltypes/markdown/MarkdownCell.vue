@@ -2,7 +2,7 @@
 import { Locale } from "@shared/types";
 import { marked } from "marked";
 
-import type { Cell } from "@renderer/schemas/notebook";
+import type { Cell } from "@shared/schemas/notebook";
 import { notebookStore } from "@renderer/store/notebookStore";
 
 const props = defineProps<{

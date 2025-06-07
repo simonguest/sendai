@@ -10,6 +10,7 @@ let worker: Worker;
 
 onMounted(async () => {
   console.log("PyodideProvider: Starting new worker for " + props.notebookId);
+  pyodideStore.setWorkerStatus("initializing");
   worker = new Worker(new URL("@renderer/pyodide/PyodideWorker.ts", import.meta.url), {
     type: "module",
   });

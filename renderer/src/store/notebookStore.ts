@@ -1,11 +1,16 @@
 import { reactive } from "vue";
 import { v4 as uuidv4 } from "uuid";
-import type { Notebook, Output } from "@renderer/schemas/notebook";
+import { Notebook, Output, NOTEBOOK_SKELETON } from "@shared/schemas/notebook";
 
 export type OutputType = "result" | "stdout" | "error";
 
 export const notebookStore = reactive({
   content: {} as Notebook,
+  updated: null as Number | null,
+  clear() {
+    this.updated = null;
+    this.content = NOTEBOOK_SKELETON;
+  },
   findCell(cellId: string) {
     if (!this.content.cells) {
       return null;
@@ -66,12 +71,14 @@ export const notebookStore = reactive({
       // Add \n chars to the end of each source line
       source = source.map(line => line + "\n");
       cell.source = source;
+      this.updated = Date.now();
     }
   },
   clearOutputs(cellId: string) {
     const cell = this.findCell(cellId);
     if (cell) {
       cell.outputs = [];
+      this.updated = Date.now();
     }
   },
   getOutputTypes(cellId: string) {
@@ -115,6 +122,7 @@ export const notebookStore = reactive({
           text: [stdout],
         });
       }
+      this.updated = Date.now();
     }
   },
   getStdout(cellId: string) {
@@ -153,6 +161,7 @@ export const notebookStore = reactive({
           data: result,
         });
       }
+      this.updated = Date.now();
     }
   },
   getResult(cellId: string) {
@@ -178,6 +187,7 @@ export const notebookStore = reactive({
         output_type: "error",
         traceback: tracebackArray,
       });
+      this.updated = Date.now();
     }
   },
   getError(cellId: string) {

@@ -6,7 +6,7 @@ import Console from "./Console.vue";
 import Error from "./Error.vue";
 import Result from "./Result.vue";
 
-import type { Cell } from "@renderer/schemas/notebook";
+import type { Cell } from "@shared/schemas/notebook";
 import { notebookStore, OutputType } from "@renderer/store/notebookStore";
 import { Locale, Theme } from "@shared/types";
 
