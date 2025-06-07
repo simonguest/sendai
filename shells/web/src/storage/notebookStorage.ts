@@ -256,7 +256,7 @@ export const deleteNotebook = async (id: string): Promise<void> => {
 
 export const loadBlankNotebook = async (): Promise<Notebook> => {
   try {
-    const response = await fetch(`/templates/blank.ipynb`);
+    const response = await fetch(`./templates/blank.ipynb`);
     if (!response.ok) {
       throw new Error(`Failed to load blank notebook template: ${response.statusText}`);
     }
