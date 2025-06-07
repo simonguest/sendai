@@ -1,168 +1,148 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { computed, ref, onMounted, onUnmounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { settingsStore } from "../store/settingsStore";
+import { notebookStore } from "@renderer/store/notebookStore";
 import { NOTEBOOK_LABELS } from "@shared/types";
-import NotebookCard from "../components/NotebookCard.vue";
+import { LOCALE_METADATA } from "@shared/i18n/locales";
+import { getNotebook } from "../storage/notebookStorage";
+import { useNotebookAutoSave } from "../composables/useNotebookAutoSave";
+import type { Notebook } from "@shared/schemas/notebook";
+import Renderer from "@renderer/Renderer.vue";
 
-import { listNotebooks, loadBlankNotebook, saveNotebook, deleteNotebook as deleteNotebookFromStorage, importNotebookFromFile, type NotebookInfo } from "../storage/notebookStorage";
+const route = useRoute();
+const router = useRouter();
 
-// Get notebook labels based on current locale
 const notebookLabels = computed(() => NOTEBOOK_LABELS[settingsStore.locale]);
+const isRTL = computed(() => LOCALE_METADATA[settingsStore.locale].direction === 'rtl');
 
-// Initialize notebooks as empty array
-const notebooks = ref<NotebookInfo[]>([]);
+const notebookId = computed(() => route.params.id as string);
+
+const notebook = ref<Notebook | null>(null);
+const loading = ref(true);
+const error = ref<string | null>(null);
+
+const { saveStatus, stopWatcher } = useNotebookAutoSave(notebookId.value);
 
 onMounted(async () => {
   try {
-    const notebookList = await listNotebooks();
-    notebooks.value = notebookList;
-  } catch (error) {
-    console.error('Failed to load notebooks:', error);
+    loading.value = true;
+    error.value = null;
+    notebook.value = await getNotebook(notebookId.value);
+  } catch (err) {
+    console.error('Failed to load notebook:', err);
+    error.value = err instanceof Error ? err.message : 'Failed to load notebook';
+  } finally {
+    loading.value = false;
   }
 });
 
-// Delete notebook handler
-const deleteNotebook = async (notebookId: string) => {
-  try {
-    // Delete from storage first
-    await deleteNotebookFromStorage(notebookId);
-    
-    // Only remove from UI if storage deletion succeeded
-    const index = notebooks.value.findIndex(nb => nb.id === notebookId);
-    if (index > -1) {
-      notebooks.value.splice(index, 1);
-    }
-    
-    console.log('Notebook deleted successfully:', notebookId);
-  } catch (error) {
-    console.error('Failed to delete notebook:', error);
-    // Note: Could add user notification here in the future
-  }
+const goBack = () => {
+  router.push('/notebooks');
 };
 
-// Add notebook menu handlers
-const createBlankNotebook = async () => {
-  try {
-    console.log("Create blank notebook");
-    const notebook = await loadBlankNotebook();
-    const id = crypto.randomUUID();
-    await saveNotebook(id, notebook);
-    console.log('Created notebook with id:', id);
-    
-    // Refresh the notebooks list
-    const notebookList = await listNotebooks();
-    notebooks.value = notebookList;
-    
-    //TODO: redirect the user to the new route
-  } catch (error) {
-    console.error('Failed to create blank notebook:', error);
-  }
-};
-
-const importNotebook = async () => {
-  try {
-    // Create file input element
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.ipynb';
-    input.style.display = 'none';
-    
-    // Handle file selection
-    input.onchange = async (event) => {
-      const file = (event.target as HTMLInputElement).files?.[0];
-      if (!file) {
-        console.log('No file selected');
-        return;
-      }
-      
-      try {
-        // Use the storage function to import the notebook
-        const id = await importNotebookFromFile(file);        
-        console.log('Notebook imported successfully:', id);
-        
-        // Refresh the notebooks list
-        const notebookList = await listNotebooks();
-        notebooks.value = notebookList;
-        
-      } catch (importError) {
-        console.error('Failed to import notebook:', importError);
-        alert(`Failed to import notebook: ${importError instanceof Error ? importError.message : 'Unknown error'}`);
-      }
-    };
-    
-    // Trigger file selection
-    document.body.appendChild(input);
-    input.click();
-    document.body.removeChild(input);
-    
-  } catch (error) {
-    console.error('Failed to import notebook:', error);
-    alert('Failed to import notebook. Please try again.');
-  }
-};
+onUnmounted(() => {
+  // Clear the notebook store and stop watching for auto-save changes
+  notebookStore.clear();
+  stopWatcher();
+});
 </script>
 
 <template>
-  <div class="notebook-index">
+  <div class="notebook">
     <v-container fluid class="pa-4">
-      <!-- Header with title and add button -->
-      <div class="d-flex justify-space-between align-center mb-6">
-        <h1 class="text-h4 notebook-title">{{ notebookLabels.title }}</h1>
+      <!-- Header with back button and save status -->
+      <div class="d-flex align-center mb-6 notebook-header">
+        <div class="d-flex align-center flex-grow-1">
+          <v-btn
+            :icon="isRTL ? 'mdi-arrow-right' : 'mdi-arrow-left'"
+            variant="text"
+            @click="goBack"
+            :class="isRTL ? 'ms-3' : 'me-3'"
+          ></v-btn>
+          <h1 class="text-h4 notebook-title">{{ notebook?.metadata?.title || notebookLabels.untitledNotebook }}</h1>
+        </div>
         
-        <!-- Add Notebook Menu -->
-        <v-menu>
-          <template v-slot:activator="{ props }">
-            <v-btn
-              color="primary"
-              v-bind="props"
-              prepend-icon="mdi-plus"
-            >
-              {{ notebookLabels.addNotebook }}
-            </v-btn>
-          </template>
-          <v-list>
-            <v-list-item @click="createBlankNotebook">
-              <v-list-item-title>{{ notebookLabels.blank }}</v-list-item-title>
-            </v-list-item>
-            <v-list-item @click="importNotebook">
-              <v-list-item-title>{{ notebookLabels.importNotebook }}</v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </v-menu>
-      </div>
-
-      <!-- Notebook Cards Grid -->
-      <v-row>
-        <v-col
-          v-for="notebook in notebooks"
-          :key="notebook.id"
-          cols="12"
-          sm="6"
-          md="4"
-          lg="3"
+        <!-- Save status indicator -->
+        <v-chip 
+          v-if="saveStatus !== 'idle'"
+          :color="saveStatus === 'saved' ? 'success' : saveStatus === 'saving' ? 'info' : 'error'"
+          size="small"
+          variant="tonal"
         >
-          <NotebookCard
-            :notebook="notebook"
-            @delete="deleteNotebook"
-          />
-        </v-col>
-      </v-row>
-
-      <!-- Empty state if no notebooks -->
-      <div v-if="notebooks.length === 0" class="text-center mt-8">
-        <v-icon icon="mdi-notebook-outline" size="64" color="grey"></v-icon>
-        <p class="text-h6 mt-4 text-medium-emphasis">No notebooks yet</p>
-        <p class="text-body-2 text-medium-emphasis">Create your first notebook to get started</p>
+          <v-icon 
+            :icon="saveStatus === 'saved' ? 'mdi-check' : saveStatus === 'saving' ? 'mdi-loading' : 'mdi-alert'"
+            :class="{ 'mdi-spin': saveStatus === 'saving' }"
+            size="small"
+            class="me-1"
+          ></v-icon>
+          {{ saveStatus === 'saved' ? notebookLabels.saved : saveStatus === 'saving' ? notebookLabels.saving : notebookLabels.saveError }}
+        </v-chip>
       </div>
+
+      <!-- Notebook Renderer -->
+      <Renderer 
+        v-if="notebook && !loading && !error" 
+        :initial-notebook="notebook" 
+        :id="notebookId"
+        :theme="settingsStore.theme"
+        :locale="settingsStore.locale"
+      />
+      
+      <!-- Loading state -->
+      <div v-else-if="loading" class="loading">
+        <v-progress-circular indeterminate color="primary"></v-progress-circular>
+        <p>{{ notebookLabels.loadingNotebook }}</p>
+      </div>
+      
+      <!-- Error state -->
+      <v-card v-else-if="error" class="pa-6">
+        <div class="text-center">
+          <v-icon icon="mdi-alert-circle" size="64" color="error" class="mb-4"></v-icon>
+          <h2 class="text-h5 mb-2">{{ notebookLabels.failedToLoad }}</h2>
+          <p class="text-body-1 text-medium-emphasis mb-4">
+            {{ error }}
+          </p>
+          <v-btn color="primary" @click="goBack">
+            {{ notebookLabels.backToNotebooks }}
+          </v-btn>
+        </div>
+      </v-card>
     </v-container>
   </div>
 </template>
 
 <style scoped>
-.notebook-index {
+.notebook {
   height: 100%;
   width: 100%;
-  padding: 16px;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 50vh;
+  gap: 16px;
+}
+
+.mdi-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* RTL-aware header layout */
+.notebook-header {
+  flex-direction: row;
+}
+
+html[dir="rtl"] .notebook-header {
+  flex-direction: row-reverse;
 }
 
 /* RTL-aware title alignment */
@@ -172,5 +152,16 @@ html[dir="rtl"] .notebook-title {
 
 html[dir="ltr"] .notebook-title {
   text-align: left;
+}
+
+/* RTL-aware back button positioning */
+html[dir="rtl"] .notebook .v-btn {
+  margin-left: 12px;
+  margin-right: 0;
+}
+
+html[dir="ltr"] .notebook .v-btn {
+  margin-right: 12px;
+  margin-left: 0;
 }
 </style>
