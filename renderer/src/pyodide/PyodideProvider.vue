@@ -19,7 +19,7 @@ onMounted(async () => {
   });
 
   worker.onmessage = async (event: MessageEvent<any>) => {
-    const { type, text, result, error, interruptBuffer } = event.data;
+    const { type, text, result, message, error, interruptBuffer } = event.data;
 
     switch (type) {
       case "initialized":
@@ -34,6 +34,9 @@ onMounted(async () => {
         if (pyodideStore.runningCellId) {
           notebookStore.addStdout(pyodideStore.runningCellId, text);
         }
+        break;
+      case "input_request":
+        pyodideStore.requestUserInput(message);
         break;
       case "execute_result":
         if (pyodideStore.runningCellId) {
@@ -75,6 +78,18 @@ watch(
         type: "run",
         cellId: pyodideStore.runningCellId,
         code: code?.join(""),
+      });
+    }
+  }
+);
+
+watch(
+  () => pyodideStore.inputStatus,
+  newInputStatus => {
+    if (newInputStatus === "submitted") {
+      worker.postMessage({
+        type: "input_response",
+        value: pyodideStore.userInput,
       });
     }
   }

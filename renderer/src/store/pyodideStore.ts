@@ -10,6 +10,9 @@ export const pyodideStore = reactive({
   runningCellId: null as string | null,
   interruptBuffer: null as Int32Array | null,
   fatalErrorTrace: "",
+  inputStatus: "idle" as InputStatus,
+  inputPrompt: null as string | null,
+  userInput: null as string | null,
   setInterruptBuffer(buffer: Int32Array) {
     this.interruptBuffer = buffer;
   },
@@ -40,5 +43,14 @@ export const pyodideStore = reactive({
   setFatalError(trace: string) {
     this.workerStatus = "error";
     this.fatalErrorTrace = trace;
+  },
+  requestUserInput(prompt: string) {
+    this.inputStatus = "waiting";
+    this.userInput = null,
+    this.inputPrompt = prompt;
+  },
+  submitUserInput(input: string | null) {
+    this.inputStatus = "submitted";
+    this.userInput = input;
   }
 });
