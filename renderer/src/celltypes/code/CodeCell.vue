@@ -5,6 +5,7 @@ import CodeEditor from "./CodeEditor.vue";
 import Console from "./Console.vue";
 import Error from "./Error.vue";
 import Result from "./Result.vue";
+import ParameterControls from "./ParameterControls.vue";
 
 import type { Cell } from "@shared/schemas/notebook";
 import { notebookStore, OutputType } from "@renderer/store/notebookStore";
@@ -37,66 +38,87 @@ watch(
   },
   { deep: true }
 );
+
+// Handle parameter changes
+const handleParameterChange = (newSource: string[]) => {
+  // Directly update the cell source without going through setSource
+  // to avoid the automatic newline addition
+  const cell = notebookStore.findCell(props.cell.id);
+  if (cell) {
+    cell.source = newSource;
+    notebookStore.updated = Date.now();
+  }
+};
 </script>
 
 <template>
-  <v-card
-    max-width="800"
-    variant="elevated"
-    elevation="2"
-    color="surface-light"
-    class="mb-2 pt-2 pb-2 ma-auto rounded-lg"
-  >
-    <v-card-text>
-      <CodeEditor :source="notebookStore.getLocalizedSource(cell.id, props.locale)" :id="cell.id" :metadata="cell.metadata" :theme="props.theme"/>
-    </v-card-text>
-    <v-card-actions class="pl-4 pr-4 d-flex justify-space-between">
-      <CodeControls :id="cell.id" />
-      <v-tabs v-model="outputTab" class="ml-auto">
-        <v-tab
-          value="result"
-          v-if="outputTypes.indexOf('result') !== -1"
-          icon
-          size="32"
-          rounded="lg"
-          min-width="48"
-          ><v-icon icon="mdi-monitor"
-        /></v-tab>
-        <v-tab
-          value="stdout"
-          v-if="outputTypes.indexOf('stdout') !== -1"
-          icon
-          size="32"
-          min-width="48"
-          rounded="lg"
-          ><v-icon icon="mdi-console"
-        /></v-tab>
-        <v-tab
-          value="error"
-          v-if="outputTypes.indexOf('error') !== -1"
-          icon
-          size="32"
-          min-width="48"
-          rounded="lg"
-          ><v-icon icon="mdi-alert-circle-outline"
-        /></v-tab>
-      </v-tabs>
-    </v-card-actions>
+  <div>
+    <!-- Parameter Controls -->
+    <ParameterControls
+      :source="notebookStore.getLocalizedSource(cell.id, props.locale)"
+      :cell-id="cell.id"
+      @parameter-changed="handleParameterChange"
+    />
+    
+    <!-- Code Cell -->
+    <v-card
+      max-width="800"
+      variant="elevated"
+      elevation="2"
+      color="surface-light"
+      class="mb-2 pt-2 pb-2 ma-auto rounded-lg"
+    >
+      <v-card-text>
+        <CodeEditor :source="notebookStore.getLocalizedSource(cell.id, props.locale)" :id="cell.id" :metadata="cell.metadata" :theme="props.theme"/>
+      </v-card-text>
+      <v-card-actions class="pl-4 pr-4 d-flex justify-space-between">
+        <CodeControls :id="cell.id" />
+        <v-tabs v-model="outputTab" class="ml-auto">
+          <v-tab
+            value="result"
+            v-if="outputTypes.indexOf('result') !== -1"
+            icon
+            size="32"
+            rounded="lg"
+            min-width="48"
+            ><v-icon icon="mdi-monitor"
+          /></v-tab>
+          <v-tab
+            value="stdout"
+            v-if="outputTypes.indexOf('stdout') !== -1"
+            icon
+            size="32"
+            min-width="48"
+            rounded="lg"
+            ><v-icon icon="mdi-console"
+          /></v-tab>
+          <v-tab
+            value="error"
+            v-if="outputTypes.indexOf('error') !== -1"
+            icon
+            size="32"
+            min-width="48"
+            rounded="lg"
+            ><v-icon icon="mdi-alert-circle-outline"
+          /></v-tab>
+        </v-tabs>
+      </v-card-actions>
 
-    <v-card-text v-show="props.cell.outputs? props.cell.outputs.length > 0 : false">
-      <v-tabs-window v-model="outputTab" direction="vertical">
-        <v-tabs-window-item value="result">
-          <Result :value="notebookStore.getResult(cell.id)" />
-        </v-tabs-window-item>
+      <v-card-text v-show="props.cell.outputs? props.cell.outputs.length > 0 : false">
+        <v-tabs-window v-model="outputTab" direction="vertical">
+          <v-tabs-window-item value="result">
+            <Result :value="notebookStore.getResult(cell.id)" />
+          </v-tabs-window-item>
 
-        <v-tabs-window-item value="stdout" direction="vertical">
-          <Console :stdout="notebookStore.getStdout(cell.id)" />
-        </v-tabs-window-item>
+          <v-tabs-window-item value="stdout" direction="vertical">
+            <Console :stdout="notebookStore.getStdout(cell.id)" />
+          </v-tabs-window-item>
 
-        <v-tabs-window-item value="error" direction="vertical">
-          <Error :stderr="notebookStore.getError(cell.id)" />
-        </v-tabs-window-item>
-      </v-tabs-window>
-    </v-card-text>
-  </v-card>
+          <v-tabs-window-item value="error" direction="vertical">
+            <Error :stderr="notebookStore.getError(cell.id)" />
+          </v-tabs-window-item>
+        </v-tabs-window>
+      </v-card-text>
+    </v-card>
+  </div>
 </template>
