@@ -27,7 +27,7 @@ const adjustHeight = () => {
 <style scoped>
 .output-console {
   font-family: "JetBrainsMono", monospace;
-  font-size: 10pt;
+  font-size: 14px;
   border: none;
   width: 100%;
   border-radius: 5px;
