@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref, watch, computed } from "vue";
 import CodeControls from "./CodeControls.vue";
 import CodeEditor from "./CodeEditor.vue";
 import Console from "./Console.vue";
@@ -49,6 +49,11 @@ const handleParameterChange = (newSource: string[]) => {
     notebookStore.updated = Date.now();
   }
 };
+
+// Check if code should be hidden
+const isCodeHidden = computed(() => {
+  return notebookStore.hasTag(props.cell.id, "hide_code");
+});
 </script>
 
 <template>
@@ -68,7 +73,7 @@ const handleParameterChange = (newSource: string[]) => {
       color="surface-light"
       class="mb-2 pt-2 pb-2 ma-auto rounded-lg"
     >
-      <v-card-text>
+      <v-card-text v-if="!isCodeHidden">
         <CodeEditor :source="notebookStore.getLocalizedSource(cell.id, props.locale)" :id="cell.id" :metadata="cell.metadata" :theme="props.theme"/>
       </v-card-text>
       <v-card-actions class="pl-4 pr-4 d-flex justify-space-between">

@@ -213,4 +213,40 @@ export const notebookStore = reactive({
       this.content = notebook;
     }
   },
+  hasTag(cellId: string, tag: string): boolean {
+    const cell = this.findCell(cellId);
+    if (!cell || !cell.metadata.tags) {
+      return false;
+    }
+    return cell.metadata.tags.includes(tag);
+  },
+  addTag(cellId: string, tag: string) {
+    const cell = this.findCell(cellId);
+    if (cell) {
+      if (!cell.metadata.tags) {
+        cell.metadata.tags = [];
+      }
+      if (!cell.metadata.tags.includes(tag)) {
+        cell.metadata.tags.push(tag);
+        this.updated = Date.now();
+      }
+    }
+  },
+  removeTag(cellId: string, tag: string) {
+    const cell = this.findCell(cellId);
+    if (cell && cell.metadata.tags) {
+      const index = cell.metadata.tags.indexOf(tag);
+      if (index !== -1) {
+        cell.metadata.tags.splice(index, 1);
+        this.updated = Date.now();
+      }
+    }
+  },
+  toggleTag(cellId: string, tag: string) {
+    if (this.hasTag(cellId, tag)) {
+      this.removeTag(cellId, tag);
+    } else {
+      this.addTag(cellId, tag);
+    }
+  },
 });

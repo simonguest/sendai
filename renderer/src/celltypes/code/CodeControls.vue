@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import { pyodideStore } from "@renderer/store/pyodideStore";
 import { notebookStore } from "@renderer/store/notebookStore";
 
@@ -17,6 +18,14 @@ const clearOutputs = () => {
 
 const interruptCode = () => {
   pyodideStore.interruptExecution();
+};
+
+const isCodeHidden = computed(() => {
+  return notebookStore.hasTag(props.id, "hide_code");
+});
+
+const toggleHideCode = () => {
+  notebookStore.toggleTag(props.id, "hide_code");
 };
 </script>
 
@@ -42,6 +51,14 @@ const interruptCode = () => {
       </v-btn-group>
       <v-btn-group rounded="lg" class="pl-4">
         <v-btn size="32" icon="mdi-broom" @click="clearOutputs" />
+      </v-btn-group>
+      <v-btn-group rounded="lg" class="pl-2">
+        <v-btn 
+          size="32" 
+          :icon="isCodeHidden ? 'mdi-eye-off' : 'mdi-eye'" 
+          @click="toggleHideCode"
+          :aria-label="isCodeHidden ? 'Show code' : 'Hide code'"
+        />
       </v-btn-group>
     </div>
   </div>
