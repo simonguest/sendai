@@ -1,9 +1,15 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useTheme } from "vuetify";
 import { settingsStore } from "./store/settingsStore";
 import { NAV_LABELS, LOCALE_METADATA } from "@shared/types";
+
+// Handle viewport height for mobile browsers
+const setViewportHeight = () => {
+  const vh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty('--vh', `${vh}px`);
+};
 
 const router = useRouter();
 const route = useRoute();
@@ -56,6 +62,17 @@ onMounted(() => {
   // Set initial direction and locale
   document.documentElement.dir = currentDirection.value;
   document.documentElement.lang = currentLocale.value;
+  
+  // Set initial viewport height and listen for changes
+  setViewportHeight();
+  window.addEventListener('resize', setViewportHeight);
+  window.addEventListener('orientationchange', setViewportHeight);
+});
+
+onUnmounted(() => {
+  // Clean up event listeners
+  window.removeEventListener('resize', setViewportHeight);
+  window.removeEventListener('orientationchange', setViewportHeight);
 });
 </script>
 
@@ -96,7 +113,7 @@ onMounted(() => {
 <style scoped>
 .content-container {
   padding-bottom: 56px; /* Space for bottom navigation */
-  height: calc(100vh - 56px); /* Full height minus bottom nav */
+  height: calc(var(--vh, 1vh) * 100 - 56px); /* Full height minus bottom nav - mobile safe */
   overflow-y: auto;
 }
 

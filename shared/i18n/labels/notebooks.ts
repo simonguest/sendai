@@ -28,7 +28,7 @@ export const NOTEBOOK_LABELS: Record<Locale, {
 }> = {
   'en-US': {
     title: 'Notebooks',
-    addNotebook: 'Add notebook',
+    addNotebook: 'Add',
     blank: 'Blank',
     fromTemplate: 'From template',
     importNotebook: 'Import notebook',
@@ -54,7 +54,7 @@ export const NOTEBOOK_LABELS: Record<Locale, {
   },
   'ja-JP': {
     title: 'ノートブック',
-    addNotebook: 'ノートブックを追加',
+    addNotebook: 'Add',
     blank: '空白',
     fromTemplate: 'テンプレートから',
     importNotebook: 'ノートブックをインポート',
@@ -80,7 +80,7 @@ export const NOTEBOOK_LABELS: Record<Locale, {
   },
   'hi-IN': {
     title: 'नोटबुक',
-    addNotebook: 'नोटबुक जोड़ें',
+    addNotebook: 'Add',
     blank: 'खाली',
     fromTemplate: 'टेम्प्लेट से',
     importNotebook: 'नोटबुक आयात करें',
@@ -106,7 +106,7 @@ export const NOTEBOOK_LABELS: Record<Locale, {
   },
   'fa-IR': {
     title: 'دفترچه‌ها',
-    addNotebook: 'افزودن دفترچه',
+    addNotebook: 'Add',
     blank: 'خالی',
     fromTemplate: 'از قالب',
     importNotebook: 'وارد کردن دفترچه',
