@@ -5,7 +5,7 @@ export const NOTEBOOK_LABELS: Record<Locale, {
   addNotebook: string;
   blank: string;
   fromTemplate: string;
-  importNotebook: string;
+  fromFile: string;
   fromUrl: string;
   delete: string;
   lastEdited: string;
@@ -40,7 +40,7 @@ export const NOTEBOOK_LABELS: Record<Locale, {
     addNotebook: 'Add',
     blank: 'Blank',
     fromTemplate: 'From template',
-    importNotebook: 'Import notebook',
+    fromFile: 'From File',
     fromUrl: 'From URL',
     delete: 'Delete',
     lastEdited: 'Last edited',
@@ -75,7 +75,7 @@ export const NOTEBOOK_LABELS: Record<Locale, {
     addNotebook: '追加',
     blank: '空白',
     fromTemplate: 'テンプレートから',
-    importNotebook: 'ノートブックをインポート',
+    fromFile: 'ファイルから',
     fromUrl: 'URLから',
     delete: '削除',
     lastEdited: '最終編集',
@@ -110,7 +110,7 @@ export const NOTEBOOK_LABELS: Record<Locale, {
     addNotebook: 'जोड़ें',
     blank: 'खाली',
     fromTemplate: 'टेम्प्लेट से',
-    importNotebook: 'नोटबुक आयात करें',
+    fromFile: 'फ़ाइल से',
     fromUrl: 'URL से',
     delete: 'हटाएं',
     lastEdited: 'अंतिम संपादन',
@@ -145,7 +145,7 @@ export const NOTEBOOK_LABELS: Record<Locale, {
     addNotebook: 'افزودن',
     blank: 'خالی',
     fromTemplate: 'از قالب',
-    importNotebook: 'وارد کردن دفترچه',
+    fromFile: 'از فایل',
     fromUrl: 'از URL',
     delete: 'حذف',
     lastEdited: 'آخرین ویرایش',

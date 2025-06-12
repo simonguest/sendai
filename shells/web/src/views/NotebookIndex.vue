@@ -62,7 +62,7 @@ const createBlankNotebook = async () => {
   }
 };
 
-const importNotebook = async () => {
+const importFromFile = async () => {
   try {
     const input = document.createElement('input');
     input.type = 'file';
@@ -162,8 +162,8 @@ const closeErrorDialog = () => {
             <v-list-item @click="createBlankNotebook">
               <v-list-item-title>{{ notebookLabels.blank }}</v-list-item-title>
             </v-list-item>
-            <v-list-item @click="importNotebook">
-              <v-list-item-title>{{ notebookLabels.importNotebook }}</v-list-item-title>
+            <v-list-item @click="importFromFile">
+              <v-list-item-title>{{ notebookLabels.fromFile }}</v-list-item-title>
             </v-list-item>
             <v-list-item @click="importFromUrl">
               <v-list-item-title>{{ notebookLabels.fromUrl }}</v-list-item-title>
