@@ -6,6 +6,7 @@ export const NOTEBOOK_LABELS: Record<Locale, {
   blank: string;
   fromTemplate: string;
   importNotebook: string;
+  fromUrl: string;
   delete: string;
   lastEdited: string;
   back: string;
@@ -25,6 +26,14 @@ export const NOTEBOOK_LABELS: Record<Locale, {
   hourAgo: string;
   daysAgo: string;
   dayAgo: string;
+  // URL import labels
+  urlDialogTitle: string;
+  urlDialogLabel: string;
+  urlDialogOpen: string;
+  urlDialogCancel: string;
+  urlDialogError: string;
+  urlDialogErrorMessage: string;
+  urlDialogInvalidUrl: string;
 }> = {
   'en-US': {
     title: 'Notebooks',
@@ -32,6 +41,7 @@ export const NOTEBOOK_LABELS: Record<Locale, {
     blank: 'Blank',
     fromTemplate: 'From template',
     importNotebook: 'Import notebook',
+    fromUrl: 'From URL',
     delete: 'Delete',
     lastEdited: 'Last edited',
     back: 'Back',
@@ -50,7 +60,15 @@ export const NOTEBOOK_LABELS: Record<Locale, {
     hoursAgo: 'hours ago',
     hourAgo: 'hour ago',
     daysAgo: 'days ago',
-    dayAgo: 'day ago'
+    dayAgo: 'day ago',
+    // URL import labels
+    urlDialogTitle: 'Import from URL',
+    urlDialogLabel: 'Enter notebook URL',
+    urlDialogOpen: 'Open',
+    urlDialogCancel: 'Close',
+    urlDialogError: 'Error',
+    urlDialogErrorMessage: 'Failed to fetch notebook from URL',
+    urlDialogInvalidUrl: 'Please enter a valid URL (must start with http:// or https://)'
   },
   'ja-JP': {
     title: 'ノートブック',
@@ -58,6 +76,7 @@ export const NOTEBOOK_LABELS: Record<Locale, {
     blank: '空白',
     fromTemplate: 'テンプレートから',
     importNotebook: 'ノートブックをインポート',
+    fromUrl: 'URLから',
     delete: '削除',
     lastEdited: '最終編集',
     back: '戻る',
@@ -76,7 +95,15 @@ export const NOTEBOOK_LABELS: Record<Locale, {
     hoursAgo: '時間前',
     hourAgo: '時間前',
     daysAgo: '日前',
-    dayAgo: '日前'
+    dayAgo: '日前',
+    // URL import labels
+    urlDialogTitle: 'URLからインポート',
+    urlDialogLabel: 'ノートブックのURLを入力',
+    urlDialogOpen: '開く',
+    urlDialogCancel: '閉じる',
+    urlDialogError: 'エラー',
+    urlDialogErrorMessage: 'URLからノートブックを取得できませんでした',
+    urlDialogInvalidUrl: '有効なURLを入力してください（http://またはhttps://で始まる必要があります）'
   },
   'hi-IN': {
     title: 'नोटबुक',
@@ -84,6 +111,7 @@ export const NOTEBOOK_LABELS: Record<Locale, {
     blank: 'खाली',
     fromTemplate: 'टेम्प्लेट से',
     importNotebook: 'नोटबुक आयात करें',
+    fromUrl: 'URL से',
     delete: 'हटाएं',
     lastEdited: 'अंतिम संपादन',
     back: 'वापस',
@@ -102,7 +130,15 @@ export const NOTEBOOK_LABELS: Record<Locale, {
     hoursAgo: 'घंटे पहले',
     hourAgo: 'घंटा पहले',
     daysAgo: 'दिन पहले',
-    dayAgo: 'दिन पहले'
+    dayAgo: 'दिन पहले',
+    // URL import labels
+    urlDialogTitle: 'URL से आयात करें',
+    urlDialogLabel: 'नोटबुक URL दर्ज करें',
+    urlDialogOpen: 'खोलें',
+    urlDialogCancel: 'बंद करें',
+    urlDialogError: 'त्रुटि',
+    urlDialogErrorMessage: 'URL से नोटबुक प्राप्त करने में विफल',
+    urlDialogInvalidUrl: 'कृपया एक वैध URL दर्ज करें (http:// या https:// से शुरू होना चाहिए)'
   },
   'fa-IR': {
     title: 'دفترچه‌ها',
@@ -110,6 +146,7 @@ export const NOTEBOOK_LABELS: Record<Locale, {
     blank: 'خالی',
     fromTemplate: 'از قالب',
     importNotebook: 'وارد کردن دفترچه',
+    fromUrl: 'از URL',
     delete: 'حذف',
     lastEdited: 'آخرین ویرایش',
     back: 'بازگشت',
@@ -128,6 +165,14 @@ export const NOTEBOOK_LABELS: Record<Locale, {
     hoursAgo: 'ساعت پیش',
     hourAgo: 'ساعت پیش',
     daysAgo: 'روز پیش',
-    dayAgo: 'روز پیش'
+    dayAgo: 'روز پیش',
+    // URL import labels
+    urlDialogTitle: 'وارد کردن از URL',
+    urlDialogLabel: 'URL دفترچه را وارد کنید',
+    urlDialogOpen: 'باز کردن',
+    urlDialogCancel: 'بستن',
+    urlDialogError: 'خطا',
+    urlDialogErrorMessage: 'دریافت دفترچه از URL ناموفق بود',
+    urlDialogInvalidUrl: 'لطفاً یک URL معتبر وارد کنید (باید با http:// یا https:// شروع شود)'
   }
 } as const;

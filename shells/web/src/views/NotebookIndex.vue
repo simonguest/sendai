@@ -6,12 +6,19 @@ import { LOCALE_METADATA } from "@shared/i18n/locales";
 import NotebookCard from "../components/NotebookCard.vue";
 import { v4 as uuidv4 } from "uuid";
 
-import { listNotebooks, loadBlankNotebook, saveNotebook, deleteNotebook as deleteNotebookFromStorage, importNotebookFromFile, type NotebookInfo } from "../storage/notebookStorage";
+import { listNotebooks, loadBlankNotebook, saveNotebook, deleteNotebook as deleteNotebookFromStorage, importNotebookFromFile, importNotebookFromUrl, type NotebookInfo } from "../storage/notebookStorage";
+import UrlInputDialog from "../components/UrlInputDialog.vue";
 
 const notebookLabels = computed(() => NOTEBOOK_LABELS[settingsStore.locale]);
 const isRTL = computed(() => LOCALE_METADATA[settingsStore.locale].direction === 'rtl');
 
 const notebooks = ref<NotebookInfo[]>([]);
+const showUrlDialog = ref(false);
+const errorDialog = ref({
+  show: false,
+  title: '',
+  message: ''
+});
 
 onMounted(async () => {
   try {
@@ -93,6 +100,43 @@ const importNotebook = async () => {
     alert('Failed to import notebook. Please try again.');
   }
 };
+
+const importFromUrl = () => {
+  showUrlDialog.value = true;
+};
+
+const handleUrlSubmit = async (url: string) => {
+  showUrlDialog.value = false;
+  
+  try {
+    console.log('Importing notebook from URL:', url);
+    const id = await importNotebookFromUrl(url);
+    console.log('Notebook imported successfully:', id);
+    
+    const notebookList = await listNotebooks();
+    notebooks.value = notebookList;
+    
+  } catch (importError) {
+    console.error('Failed to import notebook from URL:', importError);
+    
+    // Wait a bit to ensure URL dialog is fully closed before showing error
+    setTimeout(() => {
+      errorDialog.value = {
+        show: true,
+        title: notebookLabels.value.urlDialogError,
+        message: importError instanceof Error ? importError.message : notebookLabels.value.urlDialogErrorMessage
+      };
+    }, 150);
+  }
+};
+
+const handleUrlCancel = () => {
+  showUrlDialog.value = false;
+};
+
+const closeErrorDialog = () => {
+  errorDialog.value.show = false;
+};
 </script>
 
 <template>
@@ -120,6 +164,9 @@ const importNotebook = async () => {
             </v-list-item>
             <v-list-item @click="importNotebook">
               <v-list-item-title>{{ notebookLabels.importNotebook }}</v-list-item-title>
+            </v-list-item>
+            <v-list-item @click="importFromUrl">
+              <v-list-item-title>{{ notebookLabels.fromUrl }}</v-list-item-title>
             </v-list-item>
           </v-list>
         </v-menu>
@@ -149,6 +196,29 @@ const importNotebook = async () => {
         <p class="text-body-2 text-medium-emphasis">Create your first notebook to get started</p>
       </div>
     </v-container>
+
+    <!-- URL Input Dialog -->
+    <UrlInputDialog
+      :show="showUrlDialog"
+      @submit="handleUrlSubmit"
+      @cancel="handleUrlCancel"
+    />
+
+    <!-- Error Dialog -->
+    <v-dialog v-model="errorDialog.show" max-width="400px">
+      <v-card>
+        <v-card-title>{{ errorDialog.title }}</v-card-title>
+        <v-card-text>
+          <p>{{ errorDialog.message }}</p>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" variant="text" @click="closeErrorDialog">
+            {{ notebookLabels.urlDialogCancel }}
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 

@@ -363,3 +363,81 @@ export const importNotebookFromFile = async (file: File): Promise<string> => {
     reader.readAsText(file);
   });
 };
+
+const validateUrl = (url: string): boolean => {
+  try {
+    const urlObj = new URL(url);
+    return urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
+  } catch {
+    return false;
+  }
+};
+
+export const importNotebookFromUrl = async (url: string): Promise<string> => {
+  // Validate URL format
+  if (!validateUrl(url)) {
+    throw new Error('Please enter a valid URL (must start with http:// or https://)');
+  }
+
+  try {
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch notebook: ${response.status} ${response.statusText}`);
+    }
+    
+    const content = await response.text();
+    const notebook: Notebook = JSON.parse(content);
+    
+    // Validate notebook structure
+    if (!notebook.cells || !Array.isArray(notebook.cells)) {
+      throw new Error('Invalid notebook format: missing or invalid cells array');
+    }
+    
+    // Set default values if missing
+    if (!notebook.metadata) {
+      notebook.metadata = {};
+    }
+    
+    if (!notebook.nbformat) {
+      notebook.nbformat = 4;
+    }
+    
+    if (!notebook.nbformat_minor) {
+      notebook.nbformat_minor = 2;
+    }
+    
+    // Ensure all cells have IDs and required properties
+    notebook.cells.forEach((cell: Cell) => {
+      if (!cell.id) {
+        cell.id = uuidv4();
+      }
+      if (!cell.metadata) {
+        cell.metadata = {};
+      }
+      if (!cell.source) {
+        cell.source = [];
+      }
+    });
+    
+    // Set a default title if none exists
+    if (!notebook.metadata.title) {
+      // Extract filename from URL or use default
+      const urlPath = new URL(url).pathname;
+      const filename = urlPath.split('/').pop() || 'imported-notebook.ipynb';
+      notebook.metadata.title = filename.replace('.ipynb', '') || 'Imported Notebook';
+    }
+    
+    // Save notebook to storage
+    const id = uuidv4();
+    await saveNotebook(id, notebook);
+    
+    return id;
+    
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error(`Failed to import notebook from URL: ${String(error)}`);
+  }
+};
