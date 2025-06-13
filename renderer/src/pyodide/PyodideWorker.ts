@@ -7,8 +7,8 @@ let pyodide: any;
 let interruptBuffer: Int32Array | null = null;
 const hasSharedArrayBuffer = typeof SharedArrayBuffer !== "undefined";
 
-async function runPythonFile(filename: string) {
-  const response = await fetch(new URL(filename, import.meta.url));
+async function runPythonFile(url: URL) {
+  const response = await fetch(url);
   const code = await response.text();
   await pyodide.runPythonAsync(code);
 }
@@ -57,7 +57,7 @@ async function initialize() {
 
   // Override input
   console.log("PyodideWorker: Overriding input calls with async equivalent");
-  runPythonFile("./async_input.py");
+  runPythonFile(new URL("./async_input.py", import.meta.url));
 
   console.log("PyodideWorkder: Creating override for input");
   pyodide.globals.set("_override_input", (prompt?: string) => {
@@ -87,7 +87,7 @@ async function initialize() {
   });
 
   console.log("PyodideWorker: Initializing Python environment");
-  runPythonFile("./python_init.py");
+  runPythonFile(new URL("./python_init.py", import.meta.url));
 }
 
 self.onmessage = async event => {
