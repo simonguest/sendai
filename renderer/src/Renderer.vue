@@ -2,11 +2,11 @@
 import { notebookStore } from "@renderer/store/notebookStore";
 import type { Notebook } from "@shared/schemas/notebook";
 import { onMounted, watch, computed } from "vue";
-import { useTheme } from "vuetify";
 import { Theme, Locale, RENDERER_LABELS } from "@shared/types";
 
 import MarkdownCell from "./celltypes/markdown";
 import CodeCell from "./celltypes/code";
+import VideoCell from "./celltypes/video";
 import PyodideProvider from "./pyodide/PyodideProvider.vue";
 import InputDialog from "./components/InputDialog.vue";
 import { pyodideStore } from "./store/pyodideStore";
@@ -67,6 +67,11 @@ watch(
           v-if="cell.cell_type === 'code'"
           :cell="cell"
           :theme="props.theme"
+          :locale="props.locale"
+        />
+        <VideoCell
+          v-if="cell.cell_type === 'raw' && cell.metadata.tags?.includes('video')"
+          :cell="cell"
           :locale="props.locale"
         />
       </div>
