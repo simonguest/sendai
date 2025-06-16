@@ -12,6 +12,10 @@ export default defineConfig({
   publicDir: true,
   build: {
     rollupOptions: {
+      input: {
+        main: resolve(__dirname, 'index.html'),
+        emulator: resolve(__dirname, 'emulator.html')
+      },
       output: {
         manualChunks(id) {
           if (id.includes("node_modules")) {
