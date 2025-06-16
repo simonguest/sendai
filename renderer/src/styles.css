@@ -119,16 +119,3 @@ textarea:not([rows]) {
 :target {
   scroll-margin-block: 5ex;
 }
-
-/* prevent pull to refresh functionality */
-html,
-body {
-  overscroll-behavior-y: none;
-  /* overflow: hidden; */ /* Causing issues with Android WebView */
-  height: 100%;
-}
-#app {
-  overflow: auto;
-  height: 100%;
-  -webkit-overflow-scrolling: touch;
-}
