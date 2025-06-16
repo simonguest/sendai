@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-12 Notebook - Mobile Emulator</title>
+  <script type="module" crossorigin src="/k12nb/assets/emulator-C77IK6oS.js"></script>
+  <link rel="modulepreload" crossorigin href="/k12nb/assets/modulepreload-polyfill-B5Qt9EMX.js">
+  <link rel="stylesheet" crossorigin href="/k12nb/assets/emulator-DqnJZ50a.css">
+</head>
+<body>
+    <div class="emulator-container">
+        <!-- Header with device selector -->
+        <div class="emulator-header">
+            <h1></h1>
+            <div class="device-selector">
+                <label for="device-select">Device:</label>
+                <select id="device-select">
+                    <option value="phone-portrait">Portrait Smartphone (400×740)</option>
+                    <option value="tablet-landscape">Landscape Tablet (1024×768)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Device frame container -->
+        <div class="device-container" id="device-container">
+            <!-- Phone Portrait Frame -->
+            <div class="device-frame phone-portrait" id="phone-portrait">
+                <div class="device-screen">
+                    <iframe 
+                        id="app-iframe" 
+                        src="index.html" 
+                        frameborder="0"
+                        title="K-12 Notebook Application">
+                    </iframe>
+                </div>
+            </div>
+
+            <!-- Tablet Landscape Frame -->
+            <div class="device-frame tablet-landscape" id="tablet-landscape" style="display: none;">
+                <div class="device-screen">
+                    <iframe 
+                        id="app-iframe-tablet" 
+                        src="index.html" 
+                        frameborder="0"
+                        title="K-12 Notebook Application">
+                    </iframe>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>
