@@ -7,6 +7,7 @@ import { Theme, Locale, RENDERER_LABELS } from "@shared/types";
 import MarkdownCell from "./celltypes/markdown";
 import CodeCell from "./celltypes/code";
 import VideoCell from "./celltypes/video";
+import ChatCell from "./celltypes/chat";
 import PyodideProvider from "./pyodide/PyodideProvider.vue";
 import InputDialog from "./components/InputDialog.vue";
 import { pyodideStore } from "./store/pyodideStore";
@@ -71,6 +72,11 @@ watch(
         />
         <VideoCell
           v-if="cell.cell_type === 'raw' && cell.metadata.tags?.includes('video')"
+          :cell="cell"
+          :locale="props.locale"
+        />
+        <ChatCell
+          v-if="cell.cell_type === 'raw' && cell.metadata.tags?.includes('chat')"
           :cell="cell"
           :locale="props.locale"
         />
