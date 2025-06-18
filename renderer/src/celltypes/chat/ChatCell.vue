@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref, onMounted, nextTick } from 'vue';
 import type { Cell } from '@shared/schemas/notebook';
 import type { Locale } from '@shared/types';
 import { notebookStore } from '@renderer/store/notebookStore';
 import type { ChatConfig, ChatMessage } from './types';
+import { sendChatCompletion } from './chatService';
 
 const props = defineProps<{
   cell: Cell;
@@ -13,6 +14,8 @@ const props = defineProps<{
 const error = ref<string | null>(null);
 const chatConfig = ref<ChatConfig | null>(null);
 const newMessage = ref<string>('');
+const isLoading = ref<boolean>(false);
+const messagesContainer = ref<HTMLElement>();
 
 /**
  * Parse the JSON configuration from the cell source
@@ -70,23 +73,62 @@ const systemMessage = computed(() => {
 });
 
 /**
+ * Scroll to bottom of messages container
+ */
+const scrollToBottom = async (): Promise<void> => {
+  await nextTick();
+  if (messagesContainer.value) {
+    messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
+  }
+};
+
+/**
  * Handle sending a new message
  */
-const sendMessage = (): void => {
-  if (!newMessage.value.trim() || !chatConfig.value) return;
+const sendMessage = async (): Promise<void> => {
+  if (!newMessage.value.trim() || !chatConfig.value || isLoading.value) return;
   
-  // For now, just add the user message to the display
-  // In the future, this would trigger the AI API call
   const userMessage: ChatMessage = {
     role: 'user',
     content: newMessage.value.trim()
   };
   
+  // Add user message to chat
   chatConfig.value.messages.push(userMessage);
+  const messageText = newMessage.value.trim();
   newMessage.value = '';
   
-  // TODO: Implement actual AI API call here
-  // For now, we're just focusing on UI and parsing as requested
+  // Scroll to bottom after user message
+  await scrollToBottom();
+  
+  // Set loading state
+  isLoading.value = true;
+  error.value = null;
+  
+  try {
+    // Send API request with all messages (including system messages)
+    const assistantMessage = await sendChatCompletion(chatConfig.value, chatConfig.value.messages);
+    
+    // Add assistant response to chat
+    chatConfig.value.messages.push(assistantMessage);
+    
+    // Scroll to bottom after assistant message
+    await scrollToBottom();
+    
+  } catch (err) {
+    // Handle API errors
+    const errorMessage = err instanceof Error ? err.message : 'Failed to get response from AI';
+    error.value = errorMessage;
+    
+    // Remove the user message if API call failed
+    chatConfig.value.messages.pop();
+    
+    // Restore the user's input
+    newMessage.value = messageText;
+    
+  } finally {
+    isLoading.value = false;
+  }
 };
 
 /**
@@ -144,8 +186,19 @@ onMounted(() => {
             </div>
           </div>
           
+          <!-- Loading indicator -->
+          <div v-if="isLoading" class="message-wrapper assistant">
+            <div class="message-bubble assistant">
+              <div class="message-role">assistant</div>
+              <div class="message-content">
+                <v-progress-circular size="16" width="2" indeterminate class="mr-2" />
+                Thinking...
+              </div>
+            </div>
+          </div>
+          
           <!-- Empty state -->
-          <div v-if="displayMessages.length === 0" class="empty-chat">
+          <div v-if="displayMessages.length === 0 && !isLoading" class="empty-chat">
             <v-icon size="48" color="grey-lighten-1" class="mb-2">mdi-chat-outline</v-icon>
             <p class="text-body-2 text-grey">Start a conversation...</p>
           </div>
@@ -159,6 +212,7 @@ onMounted(() => {
             variant="outlined"
             density="comfortable"
             hide-details
+            :disabled="isLoading"
             @keypress="handleKeyPress"
             class="chat-input"
           >
@@ -168,7 +222,7 @@ onMounted(() => {
                 size="small"
                 color="primary"
                 variant="text"
-                :disabled="!newMessage.trim()"
+                :disabled="!newMessage.trim() || isLoading"
                 @click="sendMessage"
               />
             </template>
