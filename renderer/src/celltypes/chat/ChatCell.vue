@@ -5,6 +5,7 @@ import type { Locale } from '@shared/types';
 import { notebookStore } from '@renderer/store/notebookStore';
 import type { ChatConfig, ChatMessage } from './types';
 import { sendChatCompletion } from './chatService';
+import { marked } from 'marked';
 
 const props = defineProps<{
   cell: Cell;
@@ -71,6 +72,69 @@ const systemMessage = computed(() => {
   if (!chatConfig.value) return null;
   return chatConfig.value.messages.find(msg => msg.role === 'system');
 });
+
+/**
+ * Process message content to extract thinking tokens and render markdown
+ */
+interface ProcessedMessage {
+  thinkingContent: string | null;
+  mainContent: string;
+  hasThinking: boolean;
+}
+
+const processMessageContent = (content: string): ProcessedMessage => {
+  // Extract thinking tokens
+  const thinkingRegex = /<think>([\s\S]*?)<\/think>/gi;
+  let thinkingContent: string | null = null;
+  let mainContent = content;
+  
+  const thinkingMatches = content.match(thinkingRegex);
+  if (thinkingMatches && thinkingMatches.length > 0) {
+    // Extract all thinking content
+    thinkingContent = thinkingMatches
+      .map(match => match.replace(/<\/?think>/gi, '').trim())
+      .join('\n\n');
+    
+    // Remove thinking tokens from main content
+    mainContent = content.replace(thinkingRegex, '').trim();
+  }
+  
+  return {
+    thinkingContent,
+    mainContent,
+    hasThinking: !!thinkingContent
+  };
+};
+
+/**
+ * Render markdown content to HTML
+ */
+const renderMarkdown = (content: string): string => {
+  try {
+    const result = marked(content, {
+      breaks: true,
+      gfm: true
+    });
+    // Handle both sync and async returns from marked
+    return typeof result === 'string' ? result : content;
+  } catch (err) {
+    console.error('Failed to render markdown:', err);
+    return content; // Fallback to plain text
+  }
+};
+
+/**
+ * Process and render a message for display
+ */
+const processMessage = (message: ChatMessage): ProcessedMessage & { renderedMain: string; renderedThinking: string | null } => {
+  const processed = processMessageContent(message.content);
+  
+  return {
+    ...processed,
+    renderedMain: message.role === 'assistant' ? renderMarkdown(processed.mainContent) : processed.mainContent,
+    renderedThinking: processed.thinkingContent ? renderMarkdown(processed.thinkingContent) : null
+  };
+};
 
 /**
  * Scroll to bottom of messages container
@@ -219,7 +283,38 @@ onMounted(() => {
           >
             <div class="message-bubble" :class="message.role">
               <div class="message-role">{{ message.role }}</div>
-              <div class="message-content">{{ message.content }}</div>
+              
+              <!-- Process message content -->
+              <template v-if="message.role === 'assistant'">
+                <!-- Thinking tokens (expandable) - shown first -->
+                <v-expansion-panels
+                  v-if="processMessage(message).hasThinking"
+                  variant="accordion"
+                  class="thinking-panel mb-2"
+                >
+                  <v-expansion-panel>
+                    <v-expansion-panel-title class="thinking-title">
+                      <v-icon start size="small">mdi-brain</v-icon>
+                      <span class="text-caption">Thinking Process</span>
+                    </v-expansion-panel-title>
+                    <v-expansion-panel-text>
+                      <div 
+                        class="thinking-content markdown-content"
+                        v-html="processMessage(message).renderedThinking"
+                      />
+                    </v-expansion-panel-text>
+                  </v-expansion-panel>
+                </v-expansion-panels>
+                
+                <!-- Main assistant response -->
+                <div 
+                  class="message-content markdown-content"
+                  v-html="processMessage(message).renderedMain"
+                />
+              </template>
+              
+              <!-- User messages (plain text) -->
+              <div v-else class="message-content">{{ message.content }}</div>
             </div>
           </div>
           
@@ -370,6 +465,88 @@ onMounted(() => {
   line-height: 1.4;
   white-space: pre-wrap;
   word-wrap: break-word;
+}
+
+/* Markdown content styling */
+.markdown-content {
+  white-space: normal;
+}
+
+.markdown-content :deep(h1),
+.markdown-content :deep(h2),
+.markdown-content :deep(h3),
+.markdown-content :deep(h4),
+.markdown-content :deep(h5),
+.markdown-content :deep(h6) {
+  margin: 0.5em 0 0.3em 0;
+  font-weight: 600;
+}
+
+.markdown-content :deep(p) {
+  margin: 0.5em 0;
+}
+
+.markdown-content :deep(ul),
+.markdown-content :deep(ol) {
+  margin: 0.5em 0;
+  padding-left: 1.5em;
+}
+
+.markdown-content :deep(li) {
+  margin: 0.2em 0;
+}
+
+.markdown-content :deep(code) {
+  background-color: rgba(var(--v-theme-surface-variant), 0.7);
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.85em;
+}
+
+.markdown-content :deep(pre) {
+  background-color: rgba(var(--v-theme-surface-variant), 0.7);
+  padding: 0.8em;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin: 0.5em 0;
+}
+
+.markdown-content :deep(pre code) {
+  background: none;
+  padding: 0;
+}
+
+.markdown-content :deep(blockquote) {
+  border-left: 3px solid rgba(var(--v-theme-primary), 0.5);
+  padding-left: 1em;
+  margin: 0.5em 0;
+  font-style: italic;
+}
+
+.markdown-content :deep(strong) {
+  font-weight: 600;
+}
+
+.markdown-content :deep(em) {
+  font-style: italic;
+}
+
+/* Thinking panel styling */
+.thinking-panel {
+  background: rgba(var(--v-theme-surface), 0.3);
+  border-radius: 6px;
+}
+
+.thinking-title {
+  font-size: 0.75rem;
+  min-height: 32px !important;
+  padding: 8px 12px !important;
+}
+
+.thinking-content {
+  font-size: 0.8rem;
+  opacity: 0.9;
 }
 
 .empty-chat {
