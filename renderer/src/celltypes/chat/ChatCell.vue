@@ -83,6 +83,21 @@ const scrollToBottom = async (): Promise<void> => {
 };
 
 /**
+ * Save the current chat configuration back to the notebook source
+ */
+const saveChatConfig = (): void => {
+  if (!chatConfig.value) return;
+  
+  try {
+    const configJson = JSON.stringify(chatConfig.value, null, 2);
+    const sourceLines = configJson.split('\n');
+    notebookStore.setSource(props.cell.id, sourceLines);
+  } catch (err) {
+    console.error('Failed to save chat configuration:', err);
+  }
+};
+
+/**
  * Handle sending a new message
  */
 const sendMessage = async (): Promise<void> => {
@@ -98,6 +113,9 @@ const sendMessage = async (): Promise<void> => {
   const messageText = newMessage.value.trim();
   newMessage.value = '';
   
+  // Save updated config to notebook
+  saveChatConfig();
+  
   // Scroll to bottom after user message
   await scrollToBottom();
   
@@ -112,6 +130,9 @@ const sendMessage = async (): Promise<void> => {
     // Add assistant response to chat
     chatConfig.value.messages.push(assistantMessage);
     
+    // Save updated config with assistant response to notebook
+    saveChatConfig();
+    
     // Scroll to bottom after assistant message
     await scrollToBottom();
     
@@ -123,12 +144,28 @@ const sendMessage = async (): Promise<void> => {
     // Remove the user message if API call failed
     chatConfig.value.messages.pop();
     
+    // Save the reverted config back to notebook
+    saveChatConfig();
+    
     // Restore the user's input
     newMessage.value = messageText;
     
   } finally {
     isLoading.value = false;
   }
+};
+
+/**
+ * Clear all user and assistant messages, keeping system messages
+ */
+const clearChat = (): void => {
+  if (!chatConfig.value) return;
+  
+  // Keep only system messages
+  chatConfig.value.messages = chatConfig.value.messages.filter(msg => msg.role === 'system');
+  
+  // Save the cleared configuration
+  saveChatConfig();
 };
 
 /**
@@ -229,20 +266,36 @@ onMounted(() => {
           </v-text-field>
         </div>
         
-        <!-- Configuration Info -->
+        <!-- Configuration Info and Actions -->
         <div class="chat-config-info mt-3">
-          <v-chip size="small" variant="outlined" class="mr-2">
-            <v-icon start>mdi-server</v-icon>
-            {{ chatConfig.model }}
-          </v-chip>
-          <v-chip size="small" variant="outlined" class="mr-2">
-            <v-icon start>mdi-thermometer</v-icon>
-            T: {{ chatConfig.temperature }}
-          </v-chip>
-          <v-chip size="small" variant="outlined">
-            <v-icon start>mdi-counter</v-icon>
-            Max: {{ chatConfig.max_tokens === -1 ? '∞' : chatConfig.max_tokens }}
-          </v-chip>
+          <div class="config-chips">
+            <v-chip size="small" variant="outlined" class="mr-2">
+              <v-icon start>mdi-server</v-icon>
+              {{ chatConfig.model }}
+            </v-chip>
+            <v-chip size="small" variant="outlined" class="mr-2">
+              <v-icon start>mdi-thermometer</v-icon>
+              T: {{ chatConfig.temperature }}
+            </v-chip>
+            <v-chip size="small" variant="outlined" class="mr-2">
+              <v-icon start>mdi-counter</v-icon>
+              Max: {{ chatConfig.max_tokens === -1 ? '∞' : chatConfig.max_tokens }}
+            </v-chip>
+          </div>
+          
+          <div class="chat-actions">
+            <v-btn
+              v-if="displayMessages.length > 0"
+              size="small"
+              variant="outlined"
+              color="warning"
+              prepend-icon="mdi-broom"
+              @click="clearChat"
+              :disabled="isLoading"
+            >
+              Clear Chat
+            </v-btn>
+          </div>
         </div>
       </div>
       
@@ -339,6 +392,20 @@ onMounted(() => {
 .chat-config-info {
   display: flex;
   flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.config-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.chat-actions {
+  display: flex;
   gap: 8px;
   align-items: center;
 }
