@@ -8,6 +8,9 @@ class MobileEmulator {
     }
 
     init() {
+        // Update iframe sources with URL parameters before setting up other functionality
+        this.updateIframeSources();
+
         // Set up event listeners
         this.deviceSelect.addEventListener('change', (e) => {
             this.switchDevice(e.target.value);
@@ -23,6 +26,38 @@ class MobileEmulator {
 
         // Set initial device
         this.switchDevice(this.currentDevice);
+    }
+
+    /**
+     * Extract URL parameters from the emulator page and pass them to the iframes
+     */
+    updateIframeSources() {
+        // Get current URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        
+        // Build query string from parameters
+        const queryString = urlParams.toString();
+        
+        // Update iframe sources to include the parameters
+        const baseUrl = 'index.html';
+        const iframeSrc = queryString ? `${baseUrl}?${queryString}` : baseUrl;
+        
+        // Update both iframes
+        const phoneIframe = document.getElementById('app-iframe');
+        const tabletIframe = document.getElementById('app-iframe-tablet');
+        
+        if (phoneIframe) {
+            phoneIframe.src = iframeSrc;
+        }
+        
+        if (tabletIframe) {
+            tabletIframe.src = iframeSrc;
+        }
+        
+        // Log for debugging
+        if (queryString) {
+            console.log('Emulator: Passing URL parameters to iframes:', queryString);
+        }
     }
 
     switchDevice(deviceType) {
