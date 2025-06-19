@@ -32,11 +32,20 @@ interface ChatCompletionError {
 }
 
 /**
+ * Get URL parameter value by name
+ */
+export function getUrlParameter(name: string): string | null {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get(name);
+}
+
+/**
  * Send a chat completion request to an OpenAI-compatible endpoint
  */
 export async function sendChatCompletion(
   config: ChatConfig,
-  messages: ChatMessage[]
+  messages: ChatMessage[],
+  apiKey?: string | null
 ): Promise<ChatMessage> {
   try {
     const requestBody: any = {
@@ -54,12 +63,21 @@ export async function sendChatCompletion(
     console.log('Sending request to:', config.url);
     console.log('Request body:', JSON.stringify(requestBody, null, 2));
 
+    // Build headers object
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
+
+    // Add Authorization header if API key is provided
+    if (apiKey) {
+      headers['Authorization'] = `Bearer ${apiKey}`;
+      console.log('Using API key authentication');
+    }
+
     const response = await fetch(config.url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
+      headers,
       body: JSON.stringify(requestBody)
     });
 

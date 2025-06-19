@@ -4,7 +4,7 @@ import type { Cell } from '@shared/schemas/notebook';
 import type { Locale } from '@shared/types';
 import { notebookStore } from '@renderer/store/notebookStore';
 import type { ChatConfig, ChatMessage } from './types';
-import { sendChatCompletion } from './chatService';
+import { sendChatCompletion, getUrlParameter } from './chatService';
 import { marked } from 'marked';
 
 const props = defineProps<{
@@ -17,6 +17,7 @@ const chatConfig = ref<ChatConfig | null>(null);
 const newMessage = ref<string>('');
 const isLoading = ref<boolean>(false);
 const messagesContainer = ref<HTMLElement>();
+const apiKey = ref<string | null>(null);
 
 /**
  * Parse the JSON configuration from the cell source
@@ -49,6 +50,12 @@ const parseChatConfig = (): void => {
       stream: false,
       ...config
     };
+    
+    // Check for API key in URL parameters (separate from config)
+    apiKey.value = getUrlParameter('OPENAI_API_KEY');
+    if (apiKey.value) {
+      console.log('Found OPENAI_API_KEY in URL parameters');
+    }
     
     error.value = null;
   } catch (err) {
@@ -188,8 +195,8 @@ const sendMessage = async (): Promise<void> => {
   error.value = null;
   
   try {
-    // Send API request with all messages (including system messages)
-    const assistantMessage = await sendChatCompletion(chatConfig.value, chatConfig.value.messages);
+    // Send API request with all messages (including system messages) and API key
+    const assistantMessage = await sendChatCompletion(chatConfig.value, chatConfig.value.messages, apiKey.value);
     
     // Add assistant response to chat
     chatConfig.value.messages.push(assistantMessage);
@@ -375,6 +382,16 @@ onMounted(() => {
             <v-chip size="small" variant="outlined" class="mr-2">
               <v-icon start>mdi-counter</v-icon>
               Max: {{ chatConfig.max_tokens === -1 ? '∞' : chatConfig.max_tokens }}
+            </v-chip>
+            <v-chip 
+              v-if="apiKey" 
+              size="small" 
+              variant="outlined" 
+              color="success" 
+              class="mr-2"
+            >
+              <v-icon start>mdi-key</v-icon>
+              Authenticated
             </v-chip>
           </div>
           
