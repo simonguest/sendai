@@ -119,7 +119,8 @@ self.onmessage = async event => {
 
           console.log("PyodideProvider: Searching for overrides");
           for (const loadedPackage of [...basePackages, ...additionalPackages]) {
-            if (overrides.indexOf(loadedPackage.name) !== -1) {
+            const override = overrides.find(config => config.module === loadedPackage.name);
+            if (override) {
               console.log(`PyodideProvider: Implementing override for ${loadedPackage.name}`);
               await implementOverride(pyodide, loadedPackage.name);
             }
