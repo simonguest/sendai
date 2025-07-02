@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Locale } from "@shared/types";
 import { marked } from "marked";
-import { ref, watch } from "vue";
+import { ref, watch, computed } from "vue";
 
 import type { Cell } from "@shared/schemas/notebook";
 import { notebookStore } from "@renderer/store/notebookStore";
@@ -33,6 +33,12 @@ const toMarkdown = (source: string[] | undefined) => {
   return marked.parse(source.join(""));
 };
 
+// Process source with localization and globals
+const processedSource = computed(() => {
+  const localizedSource = notebookStore.getLocalizedSource(props.cell.id, props.locale) || [];
+  return notebookStore.parseGlobals(localizedSource, props.locale);
+});
+
 </script>
 
 <template>
@@ -41,7 +47,7 @@ const toMarkdown = (source: string[] | undefined) => {
       <!-- Read Mode: Display rendered markdown -->
       <div 
         v-if="!editMode" 
-        v-html="toMarkdown(notebookStore.parseGlobals(notebookStore.getLocalizedSource(props.cell.id, props.locale) || [], props.locale))"
+        v-html="toMarkdown(processedSource)"
       ></div>
       
       <!-- Edit Mode: Display textarea for editing -->

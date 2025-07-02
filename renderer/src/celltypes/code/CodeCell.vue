@@ -54,13 +54,19 @@ const handleParameterChange = (newSource: string[]) => {
 const isCodeHidden = computed(() => {
   return notebookStore.hasTag(props.cell.id, "hide_code");
 });
+
+// Process source with localization and globals
+const processedSource = computed(() => {
+  const localizedSource = notebookStore.getLocalizedSource(props.cell.id, props.locale) || [];
+  return notebookStore.parseGlobals(localizedSource, props.locale);
+});
 </script>
 
 <template>
   <div>
     <!-- Parameter Controls -->
     <ParameterControls
-      :source="notebookStore.parseGlobals(notebookStore.getLocalizedSource(cell.id, props.locale) || [], props.locale)"
+      :source="processedSource"
       :cell-id="cell.id"
       @parameter-changed="handleParameterChange"
     />
@@ -74,7 +80,7 @@ const isCodeHidden = computed(() => {
       class="mb-2 pt-2 pb-2 ma-auto rounded-lg"
     >
       <v-card-text v-if="!isCodeHidden">
-        <CodeEditor :source="notebookStore.parseGlobals(notebookStore.getLocalizedSource(cell.id, props.locale) || [], props.locale)" :id="cell.id" :metadata="cell.metadata" :theme="props.theme"/>
+        <CodeEditor :source="processedSource" :id="cell.id" :metadata="cell.metadata" :theme="props.theme"/>
       </v-card-text>
       <v-card-actions class="pl-4 pr-4 d-flex justify-space-between">
         <CodeControls :id="cell.id" />
