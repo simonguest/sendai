@@ -21,50 +21,6 @@ export const notebookStore = reactive({
     const cell = this.findCell(cellId);
     return cell ? cell.source : null;
   },
-  getLocalizedSource(cellId: string, locale: string) : string[] | undefined {
-    const cell = this.findCell(cellId);
-    if (!cell) return undefined;
-
-    let source = cell.source;
-    if (cell.metadata["i18n"]){
-      if (cell.metadata["i18n"][locale]){
-        source = cell.metadata["i18n"][locale];
-      }
-    }
-
-    if (!source) return undefined;
-
-    // Get globals from notebook metadata
-    const globals = this.content.metadata?.globals;
-    if (!globals) {
-      // No globals defined, return original source
-      return source;
-    }
-
-    // Process each line of source code
-    const localizedSource = source.map(line => {
-      // Replace jinja templates ({{VARIABLE}}) with localized values
-      return line.replace(/\{\{\s*(\w+)\s*\}\}/g, (match, variableName) => {
-        const globalVar = globals[variableName];
-        if (!globalVar) {
-          // Variable not found in globals, return original
-          return match;
-        }
-        
-        // Get localized value, fallback to default if locale not found
-        const localizedValue = globalVar[locale] || globalVar.default;
-        if (localizedValue === undefined) {
-          // No value found, return original
-          return match;
-        }
-        
-        // Return the value wrapped in quotes (assuming string values)
-        return `${localizedValue}`;
-      });
-    });
-
-    return localizedSource;
-  },
   setSource(cellId: string, source: string[]) {
     const cell = this.findCell(cellId);
     if (cell) {
@@ -73,6 +29,64 @@ export const notebookStore = reactive({
       cell.source = source;
       this.updated = Date.now();
     }
+  },
+  getLocalizedSource(cellId: string, locale: string): string[] | undefined {
+    const cell = this.findCell(cellId);
+    if (!cell) return undefined;
+
+    let source = cell.source;
+    if (cell.metadata["i18n"]) {
+      if (cell.metadata["i18n"][locale]) {
+        source = cell.metadata["i18n"][locale];
+      }
+    }
+
+    return source;
+  },
+  setLocalizedSource(cellId: string, source: string[], locale: string) {
+    const cell = this.findCell(cellId);
+    if (!cell) return undefined;
+
+    // Add \n chars to the end of each source line
+    source = source.map(line => line + "\n");
+
+    if (!cell.metadata["i18n"]) {
+      cell.metadata["i18n"] = {};
+    }
+    cell.metadata["i18n"][locale] = source;
+    this.updated = Date.now();
+  },
+  parseGlobals(source: string[], locale: string) {
+    // Get globals from notebook metadata
+    const globals = this.content.metadata?.globals;
+    if (!globals) {
+      // No globals defined, return original source
+      return source;
+    }
+
+    // Process each line of source code
+    const updatedSource = source.map(line => {
+      // Replace jinja templates ({{VARIABLE}}) with localized values
+      return line.replace(/\{\{\s*(\w+)\s*\}\}/g, (match, variableName) => {
+        const globalVar = globals[variableName];
+        if (!globalVar) {
+          // Variable not found in globals, return original
+          return match;
+        }
+
+        // Get localized value, fallback to default if locale not found
+        const localizedValue = globalVar[locale] || globalVar.default;
+        if (localizedValue === undefined) {
+          // No value found, return original
+          return match;
+        }
+
+        // Return the value wrapped in quotes (assuming string values)
+        return `${localizedValue}`;
+      });
+    });
+
+    return updatedSource;
   },
   clearOutputs(cellId: string) {
     const cell = this.findCell(cellId);

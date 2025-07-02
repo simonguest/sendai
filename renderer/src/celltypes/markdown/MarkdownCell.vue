@@ -17,7 +17,7 @@ const editableContent = ref<string>("");
 // Initialize editable content when entering edit mode
 watch(() => props.editMode, (newEditMode) => {
   if (newEditMode) {
-    const source = notebookStore.getSource(props.cell.id);
+    const source = notebookStore.getLocalizedSource(props.cell.id, props.locale);
     editableContent.value = source ? source.join("") : "";
   }
 }, { immediate: true });
@@ -25,7 +25,7 @@ watch(() => props.editMode, (newEditMode) => {
 const handleContentChange = (newContent: string) => {
   // Convert string back to string array format for the store
   const sourceArray = newContent.split('\n');
-  notebookStore.setSource(props.cell.id, sourceArray);
+  notebookStore.setLocalizedSource(props.cell.id, sourceArray, props.locale);
 };
 
 const toMarkdown = (source: string[] | undefined) => {
@@ -41,7 +41,7 @@ const toMarkdown = (source: string[] | undefined) => {
       <!-- Read Mode: Display rendered markdown -->
       <div 
         v-if="!editMode" 
-        v-html="toMarkdown(notebookStore.getLocalizedSource(props.cell.id, props.locale))"
+        v-html="toMarkdown(notebookStore.parseGlobals(notebookStore.getLocalizedSource(props.cell.id, props.locale) || [], props.locale))"
       ></div>
       
       <!-- Edit Mode: Display textarea for editing -->
