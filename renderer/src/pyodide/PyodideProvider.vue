@@ -73,7 +73,7 @@ watch(
   newExecutionStatus => {
     if (newExecutionStatus === "queued" && pyodideStore.runningCellId != null) {
       // Grab the source from the notebook
-      const code = notebookStore.getLocalizedSource(pyodideStore.runningCellId, props.locale);
+      const code = notebookStore.parseGlobals(notebookStore.getLocalizedSource(pyodideStore.runningCellId, props.locale) || [], props.locale);
       worker.postMessage({
         type: "run",
         cellId: pyodideStore.runningCellId,

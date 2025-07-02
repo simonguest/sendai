@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { notebookStore } from "@renderer/store/notebookStore";
 import type { Notebook } from "@shared/schemas/notebook";
-import { onMounted, watch, computed } from "vue";
+import { onMounted, watch, computed, ref } from "vue";
 import { Theme, Locale, RENDERER_LABELS } from "@shared/types";
 
 import MarkdownCell from "./celltypes/markdown";
@@ -10,6 +10,7 @@ import VideoCell from "./celltypes/video";
 import ChatCell from "./celltypes/chat";
 import PyodideProvider from "./pyodide/PyodideProvider.vue";
 import InputDialog from "./components/InputDialog.vue";
+import GlobalsDialog from "./components/GlobalsDialog.vue";
 import { pyodideStore } from "./store/pyodideStore";
 
 const props = defineProps<{
@@ -22,6 +23,9 @@ const props = defineProps<{
 
 // Get renderer labels based on current locale
 const rendererLabels = computed(() => RENDERER_LABELS[props.locale]);
+
+// Dialog state
+const showGlobalsDialog = ref(false);
 
 onMounted(() => {
   // Load the initial notebook
@@ -58,6 +62,14 @@ watch(
         ></v-alert>
       </v-expand-transition>
 
+      <v-expand-transition>
+        <div class="d-flex align-center flex-column" v-if="editMode">
+          <v-btn-group divided v-if="editMode">
+            <v-btn icon="mdi-variable" @click="showGlobalsDialog = true"></v-btn>
+          </v-btn-group>
+        </div>
+      </v-expand-transition>
+
       <div v-for="cell in notebookStore.content.cells">
         <MarkdownCell
           v-if="cell.cell_type === 'markdown'"
@@ -85,6 +97,10 @@ watch(
       </div>
     </div>
     <InputDialog :locale="props.locale" />
+    <GlobalsDialog 
+      v-model="showGlobalsDialog" 
+      :locale="props.locale" 
+    />
   </PyodideProvider>
 </template>
 

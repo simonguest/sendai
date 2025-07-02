@@ -263,4 +263,37 @@ export const notebookStore = reactive({
       this.addTag(cellId, tag);
     }
   },
+  getGlobals() {
+    if (!this.content.metadata) this.content.metadata = {};
+    if (!this.content.metadata.globals) this.content.metadata.globals = {};
+    return this.content.metadata.globals;
+  },
+  setGlobal(name: string, values: Record<string, string>) {
+    const globals = this.getGlobals();
+    globals[name] = values;
+    this.updated = Date.now();
+  },
+  deleteGlobal(name: string) {
+    const globals = this.getGlobals();
+    delete globals[name];
+    this.updated = Date.now();
+  },
+  updateGlobalValue(name: string, locale: string, value: string) {
+    const globals = this.getGlobals();
+    if (!globals[name]) globals[name] = {};
+    globals[name][locale] = value;
+    this.updated = Date.now();
+  },
+  getUsedLocales() {
+    const locales = new Set<string>();
+    const globals = this.getGlobals();
+    Object.values(globals).forEach((variable: any) => {
+      if (variable && typeof variable === 'object') {
+        Object.keys(variable).forEach(locale => {
+          if (locale !== 'default') locales.add(locale);
+        });
+      }
+    });
+    return Array.from(locales);
+  },
 });
