@@ -22,6 +22,10 @@ const notebook = ref<Notebook | null>(null);
 const loading = ref(true);
 const error = ref<string | null>(null);
 
+// State for edit mode and resources panel
+const editMode = ref(false);
+const showResources = ref(false);
+
 const { saveStatus, stopWatcher } = useNotebookAutoSave(notebookId.value);
 
 onMounted(async () => {
@@ -39,6 +43,15 @@ onMounted(async () => {
 
 const goBack = () => {
   router.push('/notebooks');
+};
+
+// Handler functions for the new buttons
+const toggleEditMode = () => {
+  editMode.value = !editMode.value;
+};
+
+const toggleResources = () => {
+  showResources.value = !showResources.value;
 };
 
 onUnmounted(() => {
@@ -61,6 +74,36 @@ onUnmounted(() => {
             :class="isRTL ? 'ms-3' : 'me-3'"
           ></v-btn>
           <h1 class="text-h4 notebook-title">{{ notebook?.metadata?.title || notebookLabels.untitledNotebook }}</h1>
+        </div>
+        
+        <!-- Edit and Resources buttons -->
+        <div class="d-flex align-center" :class="isRTL ? 'ms-3' : 'me-3'">
+          <v-btn
+            icon="mdi-pencil"
+            variant="text"
+            size="small"
+            :color="editMode ? 'primary' : 'default'"
+            @click="toggleEditMode"
+            class="me-2"
+          >
+            <v-icon>mdi-pencil</v-icon>
+            <v-tooltip activator="parent" location="bottom">
+              Edit Notebook
+            </v-tooltip>
+          </v-btn>
+          
+          <v-btn
+            icon="mdi-paperclip"
+            variant="text"
+            size="small"
+            :color="showResources ? 'primary' : 'default'"
+            @click="toggleResources"
+          >
+            <v-icon>mdi-paperclip</v-icon>
+            <v-tooltip activator="parent" location="bottom">
+              Resources
+            </v-tooltip>
+          </v-btn>
         </div>
         
         <!-- Save status indicator -->
@@ -87,6 +130,7 @@ onUnmounted(() => {
         :id="notebookId"
         :theme="settingsStore.theme"
         :locale="settingsStore.locale"
+        :editMode="editMode"
       />
       
       <!-- Loading state -->

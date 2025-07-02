@@ -17,6 +17,7 @@ const props = defineProps<{
   initialNotebook: Notebook;
   theme: Theme;
   locale: Locale;
+  editMode: boolean;
 }>();
 
 // Get renderer labels based on current locale
@@ -63,6 +64,7 @@ watch(
           :cell="cell"
           :metadata="cell.metadata"
           :locale="props.locale"
+          :editMode="props.editMode"
         />
         <CodeCell
           v-if="cell.cell_type === 'code'"

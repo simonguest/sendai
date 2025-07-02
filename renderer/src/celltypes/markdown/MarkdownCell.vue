@@ -8,6 +8,7 @@ import { notebookStore } from "@renderer/store/notebookStore";
 const props = defineProps<{
   cell: Cell;
   locale: Locale;
+  editMode: boolean;
 }>();
 
 const toMarkdown = (source: string[] | undefined) => {
