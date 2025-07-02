@@ -14,7 +14,7 @@ const route = useRoute();
 const router = useRouter();
 
 const notebookLabels = computed(() => NOTEBOOK_LABELS[settingsStore.locale]);
-const isRTL = computed(() => LOCALE_METADATA[settingsStore.locale].direction === 'rtl');
+const isRTL = computed(() => LOCALE_METADATA[settingsStore.locale].direction === "rtl");
 
 const notebookId = computed(() => route.params.id as string);
 
@@ -34,15 +34,15 @@ onMounted(async () => {
     error.value = null;
     notebook.value = await getNotebook(notebookId.value);
   } catch (err) {
-    console.error('Failed to load notebook:', err);
-    error.value = err instanceof Error ? err.message : 'Failed to load notebook';
+    console.error("Failed to load notebook:", err);
+    error.value = err instanceof Error ? err.message : "Failed to load notebook";
   } finally {
     loading.value = false;
   }
 });
 
 const goBack = () => {
-  router.push('/notebooks');
+  router.push("/notebooks");
 };
 
 // Handler functions for the new buttons
@@ -73,9 +73,39 @@ onUnmounted(() => {
             @click="goBack"
             :class="isRTL ? 'ms-3' : 'me-3'"
           ></v-btn>
-          <h1 class="text-h4 notebook-title">{{ notebook?.metadata?.title || notebookLabels.untitledNotebook }}</h1>
+          <h1 class="text-h4 notebook-title">
+            {{ notebook?.metadata?.title || notebookLabels.untitledNotebook }}
+          </h1>
         </div>
-        
+
+        <!-- Save status indicator -->
+        <v-chip
+          v-if="saveStatus !== 'idle'"
+          :color="saveStatus === 'saved' ? 'success' : saveStatus === 'saving' ? 'info' : 'error'"
+          size="small"
+          variant="tonal"
+        >
+          <v-icon
+            :icon="
+              saveStatus === 'saved'
+                ? 'mdi-check'
+                : saveStatus === 'saving'
+                ? 'mdi-loading'
+                : 'mdi-alert'
+            "
+            :class="{ 'mdi-spin': saveStatus === 'saving' }"
+            size="small"
+            class="me-1"
+          ></v-icon>
+          {{
+            saveStatus === "saved"
+              ? notebookLabels.saved
+              : saveStatus === "saving"
+              ? notebookLabels.saving
+              : notebookLabels.saveError
+          }}
+        </v-chip>
+
         <!-- Edit and Resources buttons -->
         <div class="d-flex align-center" :class="isRTL ? 'ms-3' : 'me-3'">
           <v-btn
@@ -87,11 +117,9 @@ onUnmounted(() => {
             class="me-2"
           >
             <v-icon>mdi-pencil</v-icon>
-            <v-tooltip activator="parent" location="bottom">
-              Edit Notebook
-            </v-tooltip>
+            <v-tooltip activator="parent" location="bottom"> Edit Notebook </v-tooltip>
           </v-btn>
-          
+
           <v-btn
             icon="mdi-paperclip"
             variant="text"
@@ -100,45 +128,27 @@ onUnmounted(() => {
             @click="toggleResources"
           >
             <v-icon>mdi-paperclip</v-icon>
-            <v-tooltip activator="parent" location="bottom">
-              Resources
-            </v-tooltip>
+            <v-tooltip activator="parent" location="bottom"> Resources </v-tooltip>
           </v-btn>
         </div>
-        
-        <!-- Save status indicator -->
-        <v-chip 
-          v-if="saveStatus !== 'idle'"
-          :color="saveStatus === 'saved' ? 'success' : saveStatus === 'saving' ? 'info' : 'error'"
-          size="small"
-          variant="tonal"
-        >
-          <v-icon 
-            :icon="saveStatus === 'saved' ? 'mdi-check' : saveStatus === 'saving' ? 'mdi-loading' : 'mdi-alert'"
-            :class="{ 'mdi-spin': saveStatus === 'saving' }"
-            size="small"
-            class="me-1"
-          ></v-icon>
-          {{ saveStatus === 'saved' ? notebookLabels.saved : saveStatus === 'saving' ? notebookLabels.saving : notebookLabels.saveError }}
-        </v-chip>
       </div>
 
       <!-- Notebook Renderer -->
-      <Renderer 
-        v-if="notebook && !loading && !error" 
-        :initial-notebook="notebook" 
+      <Renderer
+        v-if="notebook && !loading && !error"
+        :initial-notebook="notebook"
         :id="notebookId"
         :theme="settingsStore.theme"
         :locale="settingsStore.locale"
         :editMode="editMode"
       />
-      
+
       <!-- Loading state -->
       <div v-else-if="loading" class="loading">
         <v-progress-circular indeterminate color="primary"></v-progress-circular>
         <p>{{ notebookLabels.loadingNotebook }}</p>
       </div>
-      
+
       <!-- Error state -->
       <v-card v-else-if="error" class="pa-6">
         <div class="text-center">
@@ -176,8 +186,12 @@ onUnmounted(() => {
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* RTL-aware header layout */
