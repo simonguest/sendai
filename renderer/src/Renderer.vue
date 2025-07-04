@@ -83,6 +83,7 @@ watch(
           :cell="cell"
           :theme="props.theme"
           :locale="props.locale"
+          :editMode="props.editMode"
         />
         <VideoCell
           v-if="cell.cell_type === 'raw' && cell.metadata.tags?.includes('video')"

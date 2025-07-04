@@ -15,6 +15,7 @@ const props = defineProps<{
   cell: Cell;
   theme: Theme;
   locale: Locale;
+  editMode: boolean;
 }>();
 
 let outputTypes: OutputType[] = [];
@@ -80,7 +81,7 @@ const processedSource = computed(() => {
       class="mb-2 pt-2 pb-2 ma-auto rounded-lg"
     >
       <v-card-text v-if="!isCodeHidden">
-        <CodeEditor :source="processedSource" :id="cell.id" :metadata="cell.metadata" :theme="props.theme"/>
+        <CodeEditor :id="cell.id" :metadata="cell.metadata" :theme="props.theme" :locale="props.locale" :editMode="props.editMode"/>
       </v-card-text>
       <v-card-actions class="pl-4 pr-4 d-flex justify-space-between">
         <CodeControls :id="cell.id" />

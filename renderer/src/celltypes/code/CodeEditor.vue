@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from "vue";
+import { onMounted, ref, watch, computed } from "vue";
 import { EditorState } from "@codemirror/state";
 import { EditorView, basicSetup } from "codemirror";
 import { python } from "@codemirror/lang-python";
@@ -9,17 +9,28 @@ import { notebookStore } from "@renderer/store/notebookStore";
 import { basicLight } from "./themes/basicLight";
 import { materialDark } from "./themes/materialDark";
 
-import { Theme } from "@shared/types";
+import { Locale, Theme } from "@shared/types";
 
 const props = defineProps<{
-  source: string[] | undefined;
   metadata: any;
   id: string;
   theme: Theme;
+  editMode: boolean;
+  locale: Locale;
 }>();
 
 let editorView: EditorView | null = null;
 let isUpdatingFromStore = false;
+
+// Process source with localization and globals
+const source = computed<string[]>(() => {
+  const rawSource = notebookStore.getSource(props.id) || [];
+  if (props.editMode) {
+    return rawSource;
+  } else {
+    return notebookStore.parseGlobals(rawSource, props.locale);
+  }
+});
 
 onMounted(() => {
   // Figure out the right theme to use
@@ -31,7 +42,7 @@ onMounted(() => {
   }
 
   const startState = EditorState.create({
-    doc: props.source ? props.source.join('') : "",
+    doc: source.value ? source.value.join('') : "",
     extensions: [
       basicSetup,
       python(),
@@ -57,7 +68,7 @@ onMounted(() => {
 
 // Watch for source changes and update the editor
 watch(
-  () => props.source,
+  () => source.value,
   (newSource) => {
     if (editorView && newSource && !isUpdatingFromStore) {
       const currentDoc = editorView.state.doc.toString();
