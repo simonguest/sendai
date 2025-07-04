@@ -19,3 +19,6 @@ scratch*.py
 
 # Dist output folders
 dist
+
+# Package lock files to prevent errors with GH Actions
+package-lock.json
