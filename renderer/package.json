@@ -1,7 +1,7 @@
 {
-  "name": "k12nb",
+  "name": "sendai",
   "version": "0.1.0",
-  "description": "k12nb",
+  "description": "Project Sendai",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

@@ -1,7 +1,7 @@
 [project]
-name = "k12nb"
+name = "sendai"
 version = "0.1.0"
-description = "k12nb"
+description = "Project Sendai"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = []

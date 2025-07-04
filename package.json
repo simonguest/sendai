@@ -1,5 +1,5 @@
 {
-  "name": "k12nb",
+  "name": "sendai",
   "private": true,
   "workspaces": [
     "renderer",

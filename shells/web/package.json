@@ -1,12 +1,12 @@
 {
-  "name": "k12nb-webshell",
+  "name": "sendai-webshell",
   "version": "0.1.0",
-  "description": "k12nb-webshell",
+  "description": "sendai-webshell",
   "scripts": {
     "sync-assets": "cp -r ../../renderer/public/* ./public/",
     "dev": "npm run sync-assets && vite",
     "build": "vite build",
-    "gh-pages": "vite build --base=/k12nb/",
+    "gh-pages": "vite build --base=/sendai/",
     "clean": "rm -rf ./dist",
     "preview": "vite preview"
   },
