@@ -164,16 +164,6 @@ const getLocaleDisplayName = (locale: string) => {
   return LOCALE_METADATA[locale as Locale]?.name || locale;
 };
 
-const getLocaleFlag = (locale: string) => {
-  const flags: Record<string, string> = {
-    'en-US': '🇺🇸',
-    'ja-JP': '🇯🇵',
-    'hi-IN': '🇮🇳',
-    'fa-IR': '🇮🇷'
-  };
-  return flags[locale] || '🌐';
-};
-
 // Watch for dialog opening
 watch(() => props.modelValue, (isOpen) => {
   if (isOpen) {
@@ -291,7 +281,7 @@ watch(() => props.modelValue, (isOpen) => {
                     class="me-2"
                     style="min-width: 100px;"
                   >
-                    {{ getLocaleFlag(locale) }} {{ locale }}
+                    {{ locale }}
                   </v-chip>
                   <v-text-field
                     v-model="localGlobals[selectedVariable][locale]"
@@ -320,16 +310,10 @@ watch(() => props.modelValue, (isOpen) => {
               >
                 <template #item="{ props, item }">
                   <v-list-item v-bind="props">
-                    <template #prepend>
-                      <span class="me-2">{{ getLocaleFlag(item.value) }}</span>
-                    </template>
                     <v-list-item-title>
-                      {{ getLocaleDisplayName(item.value) }} ({{ item.value }})
+                      {{ getLocaleDisplayName(item.value) }}
                     </v-list-item-title>
                   </v-list-item>
-                </template>
-                <template #selection="{ item }">
-                  {{ getLocaleFlag(item.value) }} {{ getLocaleDisplayName(item.value) }}
                 </template>
               </v-select>
             </div>
