@@ -8,16 +8,16 @@ import { notebookStore } from "@renderer/store/notebookStore";
 
 const props = defineProps<{
   cell: Cell;
-  locale: Locale;
+  locale: Locale | null;
   editMode: boolean;
 }>();
 
 const editableContent = ref<string>("");
 
-// Initialize editable content when entering edit mode
-watch(() => props.editMode, (newEditMode) => {
+// Initialize editable content when entering edit mode or locale changes
+watch([() => props.editMode, () => props.locale], ([newEditMode, newLocale]) => {
   if (newEditMode) {
-    const source = notebookStore.getLocalizedSource(props.cell.id, props.locale);
+    const source = notebookStore.getLocalizedSource(props.cell.id, newLocale);
     editableContent.value = source ? source.join("") : "";
   }
 }, { immediate: true });

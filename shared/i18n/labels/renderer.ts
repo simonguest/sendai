@@ -15,6 +15,8 @@ export const RENDERER_LABELS: Record<Locale, {
   deleteVariable: string;
   save: string;
   cancel: string;
+  languageOverride: string;
+  noLanguageOverride: string;
 }> = {
   'en-US': {
     notebookStarting: 'The notebook is starting up...',
@@ -30,7 +32,9 @@ export const RENDERER_LABELS: Record<Locale, {
     addLocale: 'Add Locale',
     deleteVariable: 'Delete Variable',
     save: 'Save',
-    cancel: 'Cancel'
+    cancel: 'Cancel',
+    languageOverride: 'Language Override',
+    noLanguageOverride: 'None'
   },
   'ja-JP': {
     notebookStarting: 'ノートブックを起動中...',
@@ -46,7 +50,9 @@ export const RENDERER_LABELS: Record<Locale, {
     addLocale: 'ロケールを追加',
     deleteVariable: '変数を削除',
     save: '保存',
-    cancel: 'キャンセル'
+    cancel: 'キャンセル',
+    languageOverride: '言語オーバーライド',
+    noLanguageOverride: 'なし'
   },
   'hi-IN': {
     notebookStarting: 'नोटबुक शुरू हो रहा है...',
@@ -62,7 +68,9 @@ export const RENDERER_LABELS: Record<Locale, {
     addLocale: 'लोकेल जोड़ें',
     deleteVariable: 'वेरिएबल हटाएं',
     save: 'सेव करें',
-    cancel: 'रद्द करें'
+    cancel: 'रद्द करें',
+    languageOverride: 'भाषा ओवरराइड',
+    noLanguageOverride: 'कोई नहीं'
   },
   'fa-IR': {
     notebookStarting: 'دفترچه در حال راه‌اندازی است...',
@@ -78,6 +86,8 @@ export const RENDERER_LABELS: Record<Locale, {
     addLocale: 'افزودن زبان',
     deleteVariable: 'حذف متغیر',
     save: 'ذخیره',
-    cancel: 'لغو'
+    cancel: 'لغو',
+    languageOverride: 'بازنویسی زبان',
+    noLanguageOverride: 'هیچ'
   }
 } as const;

@@ -14,7 +14,7 @@ import { Locale, Theme } from "@shared/types";
 const props = defineProps<{
   cell: Cell;
   theme: Theme;
-  locale: Locale;
+  locale: Locale | null;
   editMode: boolean;
 }>();
 
@@ -58,8 +58,10 @@ const isCodeHidden = computed(() => {
 
 // Process source with localization and globals
 const processedSource = computed(() => {
-  const localizedSource = notebookStore.getLocalizedSource(props.cell.id, props.locale) || [];
-  return notebookStore.parseGlobals(localizedSource, props.locale);
+  // Force reactivity by accessing props.locale in the computed
+  const locale = props.locale;
+  const localizedSource = notebookStore.getLocalizedSource(props.cell.id, locale) || [];
+  return notebookStore.parseGlobals(localizedSource, locale);
 });
 </script>
 

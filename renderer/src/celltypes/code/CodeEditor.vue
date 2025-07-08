@@ -16,7 +16,7 @@ const props = defineProps<{
   id: string;
   theme: Theme;
   editMode: boolean;
-  locale: Locale;
+  locale: Locale | null;
 }>();
 
 let editorView: EditorView | null = null;

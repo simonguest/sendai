@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref, onMounted, watch } from 'vue';
 import { VideoPlayer } from '@videojs-player/vue';
 import type { Cell } from '@shared/schemas/notebook';
 import type { Locale } from '@shared/types';
@@ -9,7 +9,7 @@ import 'video.js/dist/video-js.css';
 
 const props = defineProps<{
   cell: Cell;
-  locale: Locale;
+  locale: Locale | null;
 }>();
 
 const error = ref<string | null>(null);
@@ -213,6 +213,11 @@ onMounted(() => {
       }
     }, 2000); // Give it 2 seconds to load, then show fallback
   }
+});
+
+// Watch for locale changes and reparse the video config
+watch(() => props.locale, () => {
+  parseVideoConfig();
 });
 </script>
 

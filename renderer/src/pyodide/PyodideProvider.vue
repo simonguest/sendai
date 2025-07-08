@@ -5,7 +5,7 @@ import { notebookStore } from "@renderer/store/notebookStore";
 import { pyodideStore } from "@renderer/store/pyodideStore";
 import { Locale } from "@shared/types";
 
-const props = defineProps<{ notebookId: string, locale: Locale }>();
+const props = defineProps<{ notebookId: string; locale: Locale | null }>();
 let worker: Worker;
 
 onMounted(async () => {
@@ -73,7 +73,10 @@ watch(
   newExecutionStatus => {
     if (newExecutionStatus === "queued" && pyodideStore.runningCellId != null) {
       // Grab the source from the notebook
-      const code = notebookStore.parseGlobals(notebookStore.getLocalizedSource(pyodideStore.runningCellId, props.locale) || [], props.locale);
+      const code = notebookStore.parseGlobals(
+        notebookStore.getLocalizedSource(pyodideStore.runningCellId, props.locale) || [],
+        props.locale
+      );
       worker.postMessage({
         type: "run",
         cellId: pyodideStore.runningCellId,

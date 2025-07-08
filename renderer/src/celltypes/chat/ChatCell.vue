@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, onMounted, nextTick } from 'vue';
+import { computed, ref, onMounted, nextTick, watch } from 'vue';
 import type { Cell } from '@shared/schemas/notebook';
 import type { Locale } from '@shared/types';
 import { notebookStore } from '@renderer/store/notebookStore';
@@ -9,7 +9,7 @@ import { marked } from 'marked';
 
 const props = defineProps<{
   cell: Cell;
-  locale: Locale;
+  locale: Locale | null;
 }>();
 
 const error = ref<string | null>(null);
@@ -250,6 +250,11 @@ const handleKeyPress = (event: KeyboardEvent): void => {
 };
 
 onMounted(() => {
+  parseChatConfig();
+});
+
+// Watch for locale changes and reparse the chat config
+watch(() => props.locale, () => {
   parseChatConfig();
 });
 </script>

@@ -1,6 +1,7 @@
 import { reactive } from "vue";
 import { v4 as uuidv4 } from "uuid";
 import { Notebook, Output, NOTEBOOK_SKELETON } from "@shared/schemas/notebook";
+import { Locale } from "@shared/i18n";
 
 export type OutputType = "result" | "stdout" | "error";
 
@@ -30,11 +31,14 @@ export const notebookStore = reactive({
       this.updated = Date.now();
     }
   },
-  getLocalizedSource(cellId: string, locale: string): string[] | undefined {
+  getLocalizedSource(cellId: string, locale: Locale | null): string[] | undefined {
     const cell = this.findCell(cellId);
     if (!cell) return undefined;
 
     let source = cell.source;
+
+    if (locale === null) return source;
+
     if (cell.metadata["i18n"]) {
       if (cell.metadata["i18n"][locale]) {
         source = cell.metadata["i18n"][locale];
@@ -43,20 +47,27 @@ export const notebookStore = reactive({
 
     return source;
   },
-  setLocalizedSource(cellId: string, source: string[], locale: string) {
+  setLocalizedSource(cellId: string, source: string[], locale: Locale | null) {
     const cell = this.findCell(cellId);
     if (!cell) return undefined;
 
-    // Add \n chars to the end of each source line
-    source = source.map(line => line + "\n");
-
-    if (!cell.metadata["i18n"]) {
-      cell.metadata["i18n"] = {};
+    // If no locale, just set the source directly
+    if (locale === null) {
+      this.setSource(cellId, source);
+    } else {
+      // Add \n chars to the end of each source line
+      source = source.map(line => line + "\n");
+      
+      if (!cell.metadata["i18n"]) {
+        cell.metadata["i18n"] = {};
+      }
+      cell.metadata["i18n"][locale] = source;
+      this.updated = Date.now();
     }
-    cell.metadata["i18n"][locale] = source;
-    this.updated = Date.now();
   },
-  parseGlobals(source: string[], locale: string) {
+  parseGlobals(source: string[], locale: Locale | null) {
+    if (locale === null) return source;
+
     // Get globals from notebook metadata
     const globals = this.content.metadata?.globals;
     if (!globals) {
@@ -277,5 +288,5 @@ export const notebookStore = reactive({
     const globals = this.getGlobals();
     delete globals[name];
     this.updated = Date.now();
-  }
+  },
 });
