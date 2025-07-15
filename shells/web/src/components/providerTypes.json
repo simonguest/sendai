@@ -1,0 +1,14 @@
+[
+  {
+    "name": "LM Studio",
+    "url": "http://localhost:1234"
+  },
+  {
+    "name": "OpenRouter",
+    "url": "https://openrouter.ai/api"
+  },
+  {
+    "name": "OpenAI",
+    "url": "https://api.openai.com"
+  }
+]

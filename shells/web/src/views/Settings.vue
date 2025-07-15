@@ -3,6 +3,7 @@ import { ref, watch, onMounted, computed } from "vue";
 import { settingsStore } from "../store/settingsStore";
 import { Theme, THEME_OPTIONS, THEME_LABELS, Locale, LOCALE_OPTIONS, LOCALE_METADATA, SETTINGS_LABELS } from "@shared/types";
 import { useTheme } from "vuetify";
+import AIProviderManager from "../components/AIProviderManager.vue";
 
 // Get theme instance at setup level
 const theme = useTheme();
@@ -78,6 +79,9 @@ const updateLocale = (locale: Locale) => {
               ></v-select>
             </v-card-text>
           </v-card>
+
+          <!-- AI Provider Manager -->
+          <AIProviderManager />
 
           <v-card>
             <v-card-title>{{ settingsLabels.about }}</v-card-title>
