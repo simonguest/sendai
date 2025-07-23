@@ -3,7 +3,7 @@ import type { AIModelsResponse, AIModel } from '../types/aiProvider';
 export class AIProviderService {
   static async fetchModels(url: string, apiKey: string): Promise<AIModel[]> {
     try {
-      const modelsUrl = `${url}/v1/models`;
+      const modelsUrl = `${url}/models`;
       
       const response = await fetch(modelsUrl, {
         method: 'GET',
