@@ -9,6 +9,7 @@ import { getNotebook } from "../storage/notebookStorage";
 import { useNotebookAutoSave } from "../composables/useNotebookAutoSave";
 import type { Notebook } from "@shared/schemas/notebook";
 import Renderer from "@renderer/Renderer.vue";
+import AIAssistant from "../components/AIAssistant.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -22,9 +23,10 @@ const notebook = ref<Notebook | null>(null);
 const loading = ref(true);
 const error = ref<string | null>(null);
 
-// State for edit mode and resources panel
+// State for edit mode, resources panel, and AI assistant
 const editMode = ref(false);
 const showResources = ref(false);
+const showAIAssistant = ref(false);
 
 const { saveStatus, stopWatcher } = useNotebookAutoSave(notebookId.value);
 
@@ -48,6 +50,10 @@ const goBack = () => {
 // Handler functions for the new buttons
 const toggleEditMode = () => {
   editMode.value = !editMode.value;
+};
+
+const toggleAIAssistant = () => {
+  showAIAssistant.value = !showAIAssistant.value;
 };
 
 const toggleResources = () => {
@@ -106,7 +112,7 @@ onUnmounted(() => {
           }}
         </v-chip>
 
-        <!-- Edit and Resources buttons -->
+        <!-- Edit, AI Assistant, and Resources buttons -->
         <div class="d-flex align-center" :class="isRTL ? 'ms-3' : 'me-3'">
           <v-btn
             icon="mdi-pencil"
@@ -118,6 +124,18 @@ onUnmounted(() => {
           >
             <v-icon>mdi-pencil</v-icon>
             <v-tooltip activator="parent" location="bottom"> Edit Notebook </v-tooltip>
+          </v-btn>
+
+          <v-btn
+            icon="mdi-assistant"
+            variant="text"
+            size="small"
+            :color="showAIAssistant ? 'primary' : 'default'"
+            @click="toggleAIAssistant"
+            class="me-2"
+          >
+            <v-icon>mdi-assistant</v-icon>
+            <v-tooltip activator="parent" location="bottom"> AI Assistant </v-tooltip>
           </v-btn>
 
           <v-btn
@@ -163,6 +181,17 @@ onUnmounted(() => {
         </div>
       </v-card>
     </v-container>
+
+    <!-- AI Assistant Navigation Drawer -->
+    <v-navigation-drawer
+      v-model="showAIAssistant"
+      location="end"
+      :width="400"
+      :temporary="false"
+      class="ai-assistant-drawer"
+    >
+      <AIAssistant :notebook-title="notebook?.metadata?.title" />
+    </v-navigation-drawer>
   </div>
 </template>
 
@@ -221,5 +250,35 @@ html[dir="rtl"] .notebook .v-btn {
 html[dir="ltr"] .notebook .v-btn {
   margin-right: 12px;
   margin-left: 0;
+}
+
+/* AI Assistant Drawer Styling */
+.ai-assistant-drawer {
+  height: 100vh;
+  z-index: 1000;
+}
+
+/* RTL support for navigation drawer */
+html[dir="rtl"] .ai-assistant-drawer {
+  left: 0;
+  right: auto;
+}
+
+html[dir="ltr"] .ai-assistant-drawer {
+  right: 0;
+  left: auto;
+}
+
+/* Responsive drawer width */
+@media (max-width: 768px) {
+  .ai-assistant-drawer {
+    width: 320px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .ai-assistant-drawer {
+    width: 280px !important;
+  }
 }
 </style>
