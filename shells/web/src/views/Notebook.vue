@@ -134,8 +134,8 @@ onUnmounted(() => {
             @click="toggleAIAssistant"
             class="me-2"
           >
-            <v-icon>mdi-assistant</v-icon>
-            <v-tooltip activator="parent" location="bottom"> AI Assistant </v-tooltip>
+            <v-icon>mdi-creation</v-icon>
+            <v-tooltip activator="parent" location="bottom"> Lesson Assistant </v-tooltip>
           </v-btn>
 
           <v-btn

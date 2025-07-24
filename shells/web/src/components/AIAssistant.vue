@@ -22,11 +22,11 @@ const messagesContainer = ref<HTMLElement>();
 
 // Preset questions
 const presetQuestions = [
-  "What does this notebook do?",
-  "Localize this notebook into Japanese",
-  "Explain the code in this notebook",
-  "How can I improve this notebook?",
-  "What are the key concepts covered here?"
+  "What are the key concepts covered in this lesson?",
+  "Does this lesson meet standards?",
+  "Localize this lesson into my language",
+  "How can I improve this lesson?",
+  "Make this lesson suitable for a K-5 class"
 ];
 
 // Computed
@@ -77,118 +77,8 @@ const sendMessage = async (): Promise<void> => {
   isLoading.value = true;
   
   setTimeout(() => {
-    let response = '';
-    
-    // Generate contextual responses based on user input
-    if (userMessage.toLowerCase().includes('what does') || userMessage.toLowerCase().includes('notebook do')) {
-      response = `This notebook appears to be a **${props.notebookTitle || 'Jupyter-style'}** educational notebook. Based on the structure, it likely contains:
-
-- **Interactive code cells** for hands-on learning
-- **Markdown explanations** to guide students through concepts
-- **Visualizations** to help illustrate key points
-
-The notebook follows a pedagogical approach where students can:
-1. Read explanations
-2. Run code examples
-3. Experiment with modifications
-4. See immediate results
-
-Would you like me to analyze any specific sections in more detail?`;
-    } else if (userMessage.toLowerCase().includes('japanese') || userMessage.toLowerCase().includes('localize')) {
-      response = `I can help you localize this notebook into Japanese! Here's what the process would involve:
-
-## Translation Strategy:
-- **Markdown text**: Translate all explanatory content
-- **Code comments**: Translate inline documentation
-- **Variable names**: Consider using English for compatibility
-- **Output text**: Translate user-facing messages
-
-## Key Considerations:
-- Maintain technical accuracy
-- Preserve code functionality
-- Use appropriate Japanese technical terminology
-- Consider cultural context for examples
-
-Would you like me to start with a specific section, or would you prefer a complete translation approach?`;
-    } else if (userMessage.toLowerCase().includes('explain') || userMessage.toLowerCase().includes('code')) {
-      response = `I'd be happy to explain the code in this notebook! Here's what I can help with:
-
-## Code Analysis:
-- **Algorithm explanations**: Break down complex logic step-by-step
-- **Function purposes**: Explain what each function does
-- **Data structures**: Clarify how data is organized and manipulated
-- **Best practices**: Point out good coding patterns
-
-## Learning Support:
-- Identify key programming concepts
-- Suggest related topics to explore
-- Provide alternative implementations
-- Explain error messages if any occur
-
-Which specific code section would you like me to focus on first?`;
-    } else if (userMessage.toLowerCase().includes('improve')) {
-      response = `Great question! Here are some ways to enhance this notebook:
-
-## Content Improvements:
-- **Add more examples**: Include edge cases and variations
-- **Interactive exercises**: Create hands-on challenges
-- **Visual aids**: Add diagrams, charts, or animations
-- **Real-world applications**: Connect concepts to practical uses
-
-## Technical Enhancements:
-- **Error handling**: Add try-catch blocks for robustness
-- **Performance optimization**: Suggest more efficient algorithms
-- **Code documentation**: Improve comments and docstrings
-- **Testing**: Add unit tests for key functions
-
-## Pedagogical Enhancements:
-- **Learning objectives**: Clearly state what students will learn
-- **Prerequisites**: List required background knowledge
-- **Assessment**: Add quiz questions or coding challenges
-- **Resources**: Link to additional reading materials
-
-What aspect would you like to focus on improving?`;
-    } else if (userMessage.toLowerCase().includes('concepts') || userMessage.toLowerCase().includes('key')) {
-      response = `Based on this notebook, here are the key concepts typically covered:
-
-## Core Programming Concepts:
-- **Variables and data types**
-- **Control structures** (loops, conditionals)
-- **Functions and modularity**
-- **Data structures** (lists, dictionaries, etc.)
-
-## Problem-Solving Skills:
-- **Algorithmic thinking**
-- **Debugging techniques**
-- **Code optimization**
-- **Testing and validation**
-
-## Practical Applications:
-- **Data analysis and visualization**
-- **Mathematical computations**
-- **Interactive programming**
-- **Documentation and presentation**
-
-## Learning Outcomes:
-Students should be able to:
-1. Understand the underlying logic
-2. Modify and extend the code
-3. Apply concepts to new problems
-4. Debug and troubleshoot issues
-
-Would you like me to elaborate on any of these concepts?`;
-    } else {
-      response = `I'm here to help you with this notebook! I can assist with:
-
-- **Understanding the content** and learning objectives
-- **Explaining code** and algorithms step by step
-- **Suggesting improvements** and best practices
-- **Localizing content** into different languages
-- **Identifying key concepts** and learning outcomes
-
-Feel free to ask specific questions about any part of the notebook, or use one of the preset questions below to get started!`;
-    }
-    
+    let response = 'Test response - TBI';
+  
     addMessage('assistant', response);
     isLoading.value = false;
   }, 1000 + Math.random() * 1000); // Simulate variable response time
@@ -212,7 +102,7 @@ const handleKeyPress = (event: KeyboardEvent): void => {
 
 // Initialize with a welcome message
 onMounted(() => {
-  addMessage('assistant', `Hello! I'm your AI assistant for this notebook. I can help you understand the content, explain code, suggest improvements, and much more.
+  addMessage('assistant', `Hello! I'm your lesson assistant. I can help you understand the content, explain code, suggest improvements, and much more.
 
 Try asking me a question or use one of the preset options below to get started!`);
 });
@@ -224,8 +114,8 @@ Try asking me a question or use one of the preset options below to get started!`
     <div class="assistant-header">
       <div class="d-flex align-center justify-space-between">
         <div class="d-flex align-center">
-          <v-icon icon="mdi-assistant" class="me-2" color="primary" />
-          <h3 class="text-h6">AI Assistant</h3>
+          <v-icon icon="mdi-creation" class="me-2" color="primary" />
+          <h3 class="text-h7">Lesson Assistant</h3>
         </div>
         <v-btn
           v-if="hasMessages"
@@ -295,9 +185,9 @@ Try asking me a question or use one of the preset options below to get started!`
     <div class="chat-input-area">
       <v-text-field
         v-model="newMessage"
-        placeholder="Ask me anything about this notebook..."
+        placeholder="Ask me anything about this lesson..."
         variant="outlined"
-        density="comfortable"
+        density="compact"
         hide-details
         :disabled="isLoading"
         @keypress="handleKeyPress"
@@ -467,7 +357,7 @@ Try asking me a question or use one of the preset options below to get started!`
 }
 
 .chat-input-area {
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .chat-input {
