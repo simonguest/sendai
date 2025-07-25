@@ -3,7 +3,7 @@ import { ref, computed, nextTick, onMounted } from "vue";
 import { marked } from "marked";
 
 import { OpenAI } from "openai";
-import { Agent, Runner, setDefaultOpenAIClient, AgentInputItem } from "@openai/agents";
+import { Agent, Runner, setDefaultOpenAIClient, AgentInputItem, UserMessageItem, AssistantMessageItem } from "@openai/agents";
 
 import { settingsStore } from "../store/settingsStore";
 
@@ -32,6 +32,30 @@ const presetQuestions = [
   "Make this lesson suitable for a K-5 class",
 ];
 
+// Type guards for message types
+const isUserMessage = (message: AgentInputItem): message is UserMessageItem => {
+  return 'role' in message && message.role === 'user';
+};
+
+const isAssistantMessage = (message: AgentInputItem): message is AssistantMessageItem => {
+  return 'role' in message && message.role === 'assistant';
+};
+
+// Helper functions to extract text content
+const getAssistantTextContent = (message: AssistantMessageItem): string => {
+  const textContent = message.content.find(item => item.type === 'output_text');
+  return textContent?.text || '';
+};
+
+const getUserTextContent = (message: UserMessageItem): string => {
+  if (typeof message.content === 'string') {
+    return message.content;
+  }
+  // Handle array content - find first text item
+  const textContent = message.content.find(item => item.type === 'input_text');
+  return textContent?.text || '';
+};
+
 // Computed
 const hasMessages = computed(() => messages.length > 0);
 
@@ -59,16 +83,29 @@ const scrollToBottom = async (): Promise<void> => {
 const sendMessage = async (): Promise<void> => {
   if (!newMessage.value.trim() || isLoading.value) return;
 
-  let message = messages.concat({role:"user", content: newMessage.value.trim()});
+  const userMessage: UserMessageItem = {
+    role: "user" as const,
+    content: newMessage.value.trim()
+  };
+  const messageHistory = messages.concat(userMessage);
+  
+  // Clear input and immediately update UI with user message
   newMessage.value = "";
+  messages = messageHistory;
+  
+  // Scroll to bottom to show the new user message
+  await scrollToBottom();
 
   // Run the agent
   isLoading.value = true;
-  const result = await runner.run(agent, message);
+  const result = await runner.run(agent, messageHistory);
   isLoading.value = false;
   
-  // Add the history to preserve the conversation
+  // Update with the full conversation history including assistant response
   messages = result.history;
+  
+  // Scroll to bottom to show the assistant response
+  await scrollToBottom();
 };
 
 const usePresetQuestion = (question: string): void => {
@@ -137,16 +174,36 @@ onMounted(() => {
         v-for="message in messages"
         :key="message.id"
         class="message-wrapper"
-        :class="message.role"
+        :class="{ 
+          'user': isUserMessage(message), 
+          'assistant': isAssistantMessage(message) 
+        }"
       >
-        <div class="message-bubble" :class="message.role">
-          <div class="message-role">{{ message.role }}</div>
+        <div 
+          class="message-bubble" 
+          :class="{ 
+            'user': isUserMessage(message), 
+            'assistant': isAssistantMessage(message) 
+          }"
+        >
+          <div class="message-role">
+            {{ isUserMessage(message) ? 'user' : isAssistantMessage(message) ? 'assistant' : 'system' }}
+          </div>
           <div
-            v-if="message.role === 'assistant'"
+            v-if="isAssistantMessage(message)"
             class="message-content markdown-content"
-            v-html="renderMarkdown(message.content[0].text)"
+            v-html="renderMarkdown(getAssistantTextContent(message))"
           />
-          <div v-else class="message-content">{{ message.content }}</div>
+          <div 
+            v-else-if="isUserMessage(message)" 
+            class="message-content"
+          >
+            {{ getUserTextContent(message) }}
+          </div>
+          <div v-else class="message-content">
+            <!-- Handle other message types if needed -->
+            {{ JSON.stringify(message) }}
+          </div>
         </div>
       </div>
 
