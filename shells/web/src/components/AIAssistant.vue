@@ -1,22 +1,25 @@
 <script setup lang="ts">
-import { ref, computed, nextTick, onMounted } from 'vue';
-import { marked } from 'marked';
+import { ref, computed, nextTick, onMounted } from "vue";
+import { marked } from "marked";
 
-interface ChatMessage {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: Date;
-}
+import { OpenAI } from "openai";
+import { Agent, Runner, setDefaultOpenAIClient, AgentInputItem } from "@openai/agents";
+
+import { settingsStore } from "../store/settingsStore";
 
 // Props
 const props = defineProps<{
   notebookTitle?: string;
 }>();
 
+// Open AI state
+let client: OpenAI;
+let agent: Agent;
+let runner: Runner;
+let messages: AgentInputItem[] = [];
+
 // Reactive state
-const messages = ref<ChatMessage[]>([]);
-const newMessage = ref('');
+const newMessage = ref("");
 const isLoading = ref(false);
 const messagesContainer = ref<HTMLElement>();
 
@@ -26,22 +29,22 @@ const presetQuestions = [
   "Does this lesson meet standards?",
   "Localize this lesson into my language",
   "How can I improve this lesson?",
-  "Make this lesson suitable for a K-5 class"
+  "Make this lesson suitable for a K-5 class",
 ];
 
 // Computed
-const hasMessages = computed(() => messages.value.length > 0);
+const hasMessages = computed(() => messages.length > 0);
 
 // Methods
 const renderMarkdown = (content: string): string => {
   try {
     const result = marked(content, {
       breaks: true,
-      gfm: true
+      gfm: true,
     });
-    return typeof result === 'string' ? result : content;
+    return typeof result === "string" ? result : content;
   } catch (err) {
-    console.error('Failed to render markdown:', err);
+    console.error("Failed to render markdown:", err);
     return content;
   }
 };
@@ -53,35 +56,19 @@ const scrollToBottom = async (): Promise<void> => {
   }
 };
 
-const addMessage = (role: 'user' | 'assistant', content: string): void => {
-  const message: ChatMessage = {
-    id: Date.now().toString(),
-    role,
-    content,
-    timestamp: new Date()
-  };
-  messages.value.push(message);
-  scrollToBottom();
-};
-
 const sendMessage = async (): Promise<void> => {
   if (!newMessage.value.trim() || isLoading.value) return;
-  
-  const userMessage = newMessage.value.trim();
-  newMessage.value = '';
-  
-  // Add user message
-  addMessage('user', userMessage);
-  
-  // Simulate AI response (stubbed for now)
+
+  let message = messages.concat({role:"user", content: newMessage.value.trim()});
+  newMessage.value = "";
+
+  // Run the agent
   isLoading.value = true;
+  const result = await runner.run(agent, message);
+  isLoading.value = false;
   
-  setTimeout(() => {
-    let response = 'Test response - TBI';
-  
-    addMessage('assistant', response);
-    isLoading.value = false;
-  }, 1000 + Math.random() * 1000); // Simulate variable response time
+  // Add the history to preserve the conversation
+  messages = result.history;
 };
 
 const usePresetQuestion = (question: string): void => {
@@ -90,21 +77,33 @@ const usePresetQuestion = (question: string): void => {
 };
 
 const clearChat = (): void => {
-  messages.value = [];
+  messages = [];
 };
 
 const handleKeyPress = (event: KeyboardEvent): void => {
-  if (event.key === 'Enter' && !event.shiftKey) {
+  if (event.key === "Enter" && !event.shiftKey) {
     event.preventDefault();
     sendMessage();
   }
 };
 
-// Initialize with a welcome message
 onMounted(() => {
-  addMessage('assistant', `Hello! I'm your lesson assistant. I can help you understand the content, explain code, suggest improvements, and much more.
+  // Initialize the OpenAI client and agent
+  client = new OpenAI({
+    baseURL: settingsStore.getDefaultProvider()?.url,
+    apiKey: settingsStore.getDefaultProvider()?.apiKey,
+    dangerouslyAllowBrowser: true,
+  });
 
-Try asking me a question or use one of the preset options below to get started!`);
+  agent = new Agent({
+    name: "Lesson Assistant",
+    instructions: "You are a helpful assistant to assist with lesson content and improvements.",
+    model: settingsStore.getDefaultProvider()?.selectedModel,
+  });
+  // Override the default open AI client
+  setDefaultOpenAIClient(client);
+  // Create a new runner for messages
+  runner = new Runner();
 });
 </script>
 
@@ -142,15 +141,15 @@ Try asking me a question or use one of the preset options below to get started!`
       >
         <div class="message-bubble" :class="message.role">
           <div class="message-role">{{ message.role }}</div>
-          <div 
+          <div
             v-if="message.role === 'assistant'"
             class="message-content markdown-content"
-            v-html="renderMarkdown(message.content)"
+            v-html="renderMarkdown(message.content[0].text)"
           />
           <div v-else class="message-content">{{ message.content }}</div>
         </div>
       </div>
-      
+
       <!-- Loading indicator -->
       <div v-if="isLoading" class="message-wrapper assistant">
         <div class="message-bubble assistant">
@@ -205,7 +204,6 @@ Try asking me a question or use one of the preset options below to get started!`
         </template>
       </v-text-field>
     </div>
-
   </div>
 </template>
 
@@ -311,7 +309,7 @@ Try asking me a question or use one of the preset options below to get started!`
   background-color: rgba(var(--v-theme-surface-variant), 0.7);
   padding: 0.1em 0.3em;
   border-radius: 3px;
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
   font-size: 0.85em;
 }
 
