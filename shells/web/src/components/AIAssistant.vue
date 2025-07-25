@@ -1,9 +1,16 @@
 <script setup lang="ts">
-import { ref, computed, nextTick, onMounted } from "vue";
+import { ref, computed, nextTick, onMounted, toRaw } from "vue";
 import { marked } from "marked";
 
 import { OpenAI } from "openai";
-import { Agent, Runner, setDefaultOpenAIClient, AgentInputItem, UserMessageItem, AssistantMessageItem } from "@openai/agents";
+import {
+  Agent,
+  Runner,
+  AgentInputItem,
+  UserMessageItem,
+  AssistantMessageItem,
+  OpenAIChatCompletionsModel,
+} from "@openai/agents";
 
 import { settingsStore } from "../store/settingsStore";
 
@@ -16,12 +23,13 @@ const props = defineProps<{
 let client: OpenAI;
 let agent: Agent;
 let runner: Runner;
-let messages: AgentInputItem[] = [];
 
 // Reactive state
+const messages = ref<AgentInputItem[]>([]);
 const newMessage = ref("");
 const isLoading = ref(false);
 const messagesContainer = ref<HTMLElement>();
+const messageInput = ref<HTMLElement>();
 
 // Preset questions
 const presetQuestions = [
@@ -34,30 +42,31 @@ const presetQuestions = [
 
 // Type guards for message types
 const isUserMessage = (message: AgentInputItem): message is UserMessageItem => {
-  return 'role' in message && message.role === 'user';
+  return "role" in message && message.role === "user";
 };
 
 const isAssistantMessage = (message: AgentInputItem): message is AssistantMessageItem => {
-  return 'role' in message && message.role === 'assistant';
+  return "role" in message && message.role === "assistant";
 };
 
 // Helper functions to extract text content
 const getAssistantTextContent = (message: AssistantMessageItem): string => {
-  const textContent = message.content.find(item => item.type === 'output_text');
-  return textContent?.text || '';
+  const textContent = message.content.find(item => item.type === "output_text");
+  return textContent?.text || "";
 };
 
 const getUserTextContent = (message: UserMessageItem): string => {
-  if (typeof message.content === 'string') {
+  if (typeof message.content === "string") {
     return message.content;
   }
   // Handle array content - find first text item
-  const textContent = message.content.find(item => item.type === 'input_text');
-  return textContent?.text || '';
+  const textContent = message.content.find(item => item.type === "input_text");
+  return textContent?.text || "";
 };
 
 // Computed
-const hasMessages = computed(() => messages.length > 0);
+const hasMessages = computed(() => messages.value.length > 0);
+const messageCount = computed(() => messages.value.length);
 
 // Methods
 const renderMarkdown = (content: string): string => {
@@ -80,19 +89,32 @@ const scrollToBottom = async (): Promise<void> => {
   }
 };
 
+const focusInput = async (): Promise<void> => {
+  await nextTick();
+  if (messageInput.value) {
+    // Focus the actual input element within the v-text-field
+    const inputElement =
+      (messageInput.value as any).$el?.querySelector("input") ||
+      (messageInput.value as any).$el?.querySelector("textarea");
+    if (inputElement) {
+      inputElement.focus();
+    }
+  }
+};
+
 const sendMessage = async (): Promise<void> => {
   if (!newMessage.value.trim() || isLoading.value) return;
 
   const userMessage: UserMessageItem = {
     role: "user" as const,
-    content: newMessage.value.trim()
+    content: newMessage.value.trim(),
   };
-  const messageHistory = messages.concat(userMessage);
-  
+  const messageHistory = toRaw(messages.value).concat(userMessage);
+
   // Clear input and immediately update UI with user message
   newMessage.value = "";
-  messages = messageHistory;
-  
+  messages.value = messageHistory;
+
   // Scroll to bottom to show the new user message
   await scrollToBottom();
 
@@ -100,12 +122,15 @@ const sendMessage = async (): Promise<void> => {
   isLoading.value = true;
   const result = await runner.run(agent, messageHistory);
   isLoading.value = false;
-  
+
   // Update with the full conversation history including assistant response
-  messages = result.history;
-  
+  messages.value = result.history;
+
   // Scroll to bottom to show the assistant response
   await scrollToBottom();
+
+  // Restore focus to the input field after assistant responds
+  await focusInput();
 };
 
 const usePresetQuestion = (question: string): void => {
@@ -114,7 +139,7 @@ const usePresetQuestion = (question: string): void => {
 };
 
 const clearChat = (): void => {
-  messages = [];
+  messages.value = [];
 };
 
 const handleKeyPress = (event: KeyboardEvent): void => {
@@ -135,10 +160,12 @@ onMounted(() => {
   agent = new Agent({
     name: "Lesson Assistant",
     instructions: "You are a helpful assistant to assist with lesson content and improvements.",
-    model: settingsStore.getDefaultProvider()?.selectedModel,
+    model: new OpenAIChatCompletionsModel(
+      client,
+      settingsStore.getDefaultProvider()?.selectedModel || "gpt-4o-mini"
+    ),
   });
-  // Override the default open AI client
-  setDefaultOpenAIClient(client);
+
   // Create a new runner for messages
   runner = new Runner();
 });
@@ -174,34 +201,32 @@ onMounted(() => {
         v-for="message in messages"
         :key="message.id"
         class="message-wrapper"
-        :class="{ 
-          'user': isUserMessage(message), 
-          'assistant': isAssistantMessage(message) 
+        :class="{
+          user: isUserMessage(message),
+          assistant: isAssistantMessage(message),
         }"
       >
-        <div 
-          class="message-bubble" 
-          :class="{ 
-            'user': isUserMessage(message), 
-            'assistant': isAssistantMessage(message) 
+        <div
+          class="message-bubble"
+          :class="{
+            user: isUserMessage(message),
+            assistant: isAssistantMessage(message),
           }"
         >
           <div class="message-role">
-            {{ isUserMessage(message) ? 'user' : isAssistantMessage(message) ? 'assistant' : 'system' }}
+            {{
+              isUserMessage(message) ? "user" : isAssistantMessage(message) ? "assistant" : "system"
+            }}
           </div>
           <div
             v-if="isAssistantMessage(message)"
             class="message-content markdown-content"
             v-html="renderMarkdown(getAssistantTextContent(message))"
-          />
-          <div 
-            v-else-if="isUserMessage(message)" 
-            class="message-content"
-          >
+          ></div>
+          <div v-else-if="isUserMessage(message)" class="message-content">
             {{ getUserTextContent(message) }}
           </div>
           <div v-else class="message-content">
-            <!-- Handle other message types if needed -->
             {{ JSON.stringify(message) }}
           </div>
         </div>
@@ -220,7 +245,7 @@ onMounted(() => {
     </div>
 
     <!-- Preset Questions -->
-    <div v-if="!hasMessages || messages.length === 1" class="preset-questions">
+    <div v-if="!hasMessages || messageCount === 1" class="preset-questions">
       <div class="text-caption text-medium-emphasis mb-2">Quick questions:</div>
       <div class="preset-chips">
         <v-chip
@@ -240,6 +265,7 @@ onMounted(() => {
     <!-- Input Area -->
     <div class="chat-input-area">
       <v-text-field
+        ref="messageInput"
         v-model="newMessage"
         placeholder="Ask me anything about this lesson..."
         variant="outlined"
