@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, nextTick, onMounted, toRaw } from "vue";
+import { ref, computed, nextTick, onMounted, toRaw, onUpdated, watch } from "vue";
 import { marked } from "marked";
 
 import { OpenAI } from "openai";
@@ -16,7 +16,7 @@ import { settingsStore } from "../store/settingsStore";
 
 // Props
 const props = defineProps<{
-  notebookTitle?: string;
+  expanded: boolean;
 }>();
 
 // Open AI state
@@ -67,6 +67,13 @@ const getUserTextContent = (message: UserMessageItem): string => {
 // Computed
 const hasMessages = computed(() => messages.value.length > 0);
 const messageCount = computed(() => messages.value.length);
+
+// Watches
+watch(() => props.expanded, (expanded) => {
+  if (expanded) {
+    focusInput();
+  }
+});
 
 // Methods
 const renderMarkdown = (content: string): string => {
