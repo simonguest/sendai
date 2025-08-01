@@ -10,13 +10,17 @@ import {
   UserMessageItem,
   AssistantMessageItem,
   OpenAIChatCompletionsModel,
+  tool,
 } from "@openai/agents";
+import { z } from "zod";
 
 import { settingsStore } from "../store/settingsStore";
+import { Notebook } from "@shared/schemas/notebook";
 
 // Props
 const props = defineProps<{
   expanded: boolean;
+  notebook: Notebook | null;
 }>();
 
 // Open AI state
@@ -65,15 +69,34 @@ const getUserTextContent = (message: UserMessageItem): string => {
 };
 
 // Computed
-const hasMessages = computed(() => messages.value.length > 0);
-const messageCount = computed(() => messages.value.length);
+const visibleMessages = computed(() => {
+  return messages.value.filter(message => 
+    isUserMessage(message) || isAssistantMessage(message)
+  );
+});
+const hasMessages = computed(() => visibleMessages.value.length > 0);
+const messageCount = computed(() => visibleMessages.value.length);
 
 // Watches
-watch(() => props.expanded, (expanded) => {
-  if (expanded) {
-    focusInput();
+watch(
+  () => props.expanded,
+  expanded => {
+    if (expanded) {
+      focusInput();
+    }
   }
-});
+);
+
+watch(
+  () => props.notebook,
+  (newNotebook, oldNotebook) => {
+    console.log("Notebook has changed");
+    // Clear chat when notebook changes to avoid confusion with stale context
+    if (oldNotebook && newNotebook && oldNotebook !== newNotebook) {
+      clearChat();
+    }
+  }
+);
 
 // Methods
 const renderMarkdown = (content: string): string => {
@@ -133,6 +156,8 @@ const sendMessage = async (): Promise<void> => {
   // Update with the full conversation history including assistant response
   messages.value = result.history;
 
+  console.log(messages.value);
+
   // Scroll to bottom to show the assistant response
   await scrollToBottom();
 
@@ -164,6 +189,19 @@ onMounted(() => {
     dangerouslyAllowBrowser: true,
   });
 
+  // Initialize the tools for the agent
+  const getNotebookTool = tool({
+    name: "get_notebook",
+    description: "Returns the JSON representation of the current notebook. (ipynb format)",
+    parameters: z.object({}),
+    async execute({}) {
+      if (!props.notebook) {
+        throw new Error("No notebook is currently loaded");
+      }
+      return props.notebook;
+    },
+  });
+
   agent = new Agent({
     name: "Lesson Assistant",
     instructions: "You are a helpful assistant to assist with lesson content and improvements.",
@@ -171,6 +209,7 @@ onMounted(() => {
       client,
       settingsStore.getDefaultProvider()?.selectedModel || "gpt-4o-mini"
     ),
+    tools: [getNotebookTool],
   });
 
   // Create a new runner for messages
@@ -205,7 +244,7 @@ onMounted(() => {
     <!-- Chat Messages -->
     <div class="chat-messages" ref="messagesContainer">
       <div
-        v-for="message in messages"
+        v-for="message in visibleMessages"
         :key="message.id"
         class="message-wrapper"
         :class="{
@@ -221,20 +260,15 @@ onMounted(() => {
           }"
         >
           <div class="message-role">
-            {{
-              isUserMessage(message) ? "user" : isAssistantMessage(message) ? "assistant" : "system"
-            }}
+            {{ isUserMessage(message) ? "user" : "assistant" }}
           </div>
           <div
             v-if="isAssistantMessage(message)"
             class="message-content markdown-content"
             v-html="renderMarkdown(getAssistantTextContent(message))"
           ></div>
-          <div v-else-if="isUserMessage(message)" class="message-content">
-            {{ getUserTextContent(message) }}
-          </div>
           <div v-else class="message-content">
-            {{ JSON.stringify(message) }}
+            {{ getUserTextContent(message) }}
           </div>
         </div>
       </div>

@@ -190,7 +190,7 @@ onUnmounted(() => {
       :temporary="false"
       class="ai-assistant-drawer"
     >
-      <AIAssistant :expanded="showAIAssistant"/>
+      <AIAssistant :expanded="showAIAssistant" :notebook="notebook"/>
     </v-navigation-drawer>
   </div>
 </template>
